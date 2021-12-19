@@ -18,9 +18,9 @@ public:
 
 			_pool._objects[index].isActive = false;
 
-			if (index == _pool._numActive)
+			if (index == _pool._activeCount)
 			{
-				_pool._numActive--;
+				_pool._activeCount--;
 				return;
 			}
 			else
@@ -47,7 +47,7 @@ protected:
 
 		if (_holes.empty())
 		{
-			index = _numActive++;
+			index = _activeCount++;
 		}
 		else
 		{
@@ -71,8 +71,8 @@ protected:
 		using pointer = value_type*;
 		using reference = value_type&;
 
+		Iterator() {}
 		Iterator(pointer ptr) : _ptr(ptr) {}
-
 		reference operator*() const { return *_ptr; }
 		pointer operator->() { return _ptr; }
 
@@ -93,13 +93,13 @@ protected:
 		friend bool operator== (const Iterator& a, const Iterator& b) { return a._ptr == b._ptr; };
 		friend bool operator!= (const Iterator& a, const Iterator& b) { return a._ptr != b._ptr; };
 	private:
-		pointer _ptr;
+		pointer _ptr = nullptr;
 	};
 
-	//static_assert(std::forward_iterator<Iterator>); // idk why it fails
+	static_assert(std::forward_iterator<Iterator>);
 
 	Iterator begin() { return Iterator(&_objects[0].value); }
-	Iterator end() { return Iterator(&_objects[_numActive].value); }
+	Iterator end() { return Iterator(&_objects[_activeCount].value); }
 
 private:
 #pragma pack(push, 1) // benchmarking needed
@@ -112,6 +112,6 @@ private:
 
 	ActivatableObject* _objects = nullptr;
 	uint64_t _maxSize = 0;
-	uint64_t _numActive = 0;
+	uint64_t _activeCount = 0;
 	std::queue<uint64_t> _holes;
 };

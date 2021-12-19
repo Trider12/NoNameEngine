@@ -14,11 +14,11 @@
 
 namespace
 {
-	const float fixedDelta = 1.f / 60.f;
+	constexpr float fixedDelta = 1.f / 60.f;
 	const sf::Color clearColorDefault = sf::Color(100, 100, 100, 255);
 
-	auto& componentManager = Locator::Instance().getComponentManager();
-	auto& node2DManager = Locator::Instance().getNode2DManager();
+	auto& systemManager = Locator::getInstance().getSystemManager();
+	auto& node2DManager = Locator::getInstance().getNode2DManager();
 }
 
 CoreLoop::CoreLoop(const sf::Vector2u& windowSize, const std::string& windowTitle, std::shared_ptr<Node2D> root) : _isRunning{ true }
@@ -29,6 +29,8 @@ CoreLoop::CoreLoop(const sf::Vector2u& windowSize, const std::string& windowTitl
 	_window.create(sf::VideoMode(windowSize.x, windowSize.y), windowTitle, sf::Style::Titlebar | sf::Style::Close);
 	_window.setVerticalSyncEnabled(true);
 	_window.setActive(false);
+
+	systemManager.setRenderTarget(_window);
 
 	ImGui::SFML::Init(_window);
 	ImGui::GetIO().IniFilename = nullptr;
@@ -61,7 +63,7 @@ void CoreLoop::update()
 
 	for (_elapsedSeconds += _updateDeltaClock.restart().asSeconds(); _elapsedSeconds - fixedDelta > std::numeric_limits<float>::epsilon(); _elapsedSeconds -= fixedDelta)
 	{
-		componentManager.update<TransformComponent>(fixedDelta);
+		systemManager.update<PhysicsSystem>(fixedDelta);
 	}
 }
 

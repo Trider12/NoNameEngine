@@ -1,4 +1,5 @@
 #include "CoreLoop.hpp"
+#include "Node2D.hpp"
 
 int main()
 {

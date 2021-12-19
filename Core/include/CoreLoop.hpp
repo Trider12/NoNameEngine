@@ -5,7 +5,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 
-#include "Node2D.hpp"
+class Node2D;
 
 class CoreLoop
 {

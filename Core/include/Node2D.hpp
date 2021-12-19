@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cstdio>
-#include <cassert>
-#include <memory>
 #include <vector>
 
 namespace sf

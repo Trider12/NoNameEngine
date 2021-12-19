@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Node2DManager.hpp"
-#include "ComponentManager.hpp"
+#include "SystemManager.hpp"
 
 class Locator
 {
 public:
-	static Locator& Instance() { return _instance; }
+	static Locator& getInstance() { return _instance; }
 
-	ComponentManager& getComponentManager() { return _componentManager; }
+	SystemManager& getSystemManager() { return _systemManager; }
 	Node2DManager& getNode2DManager() { return _node2DManager; }
 
 private:
@@ -16,6 +16,6 @@ private:
 
 	static Locator _instance;
 
-	ComponentManager _componentManager = ComponentManager();
+	SystemManager _systemManager = SystemManager();
 	Node2DManager _node2DManager = Node2DManager();
 };

@@ -1,18 +1,21 @@
 #include "Node2D.hpp"
 
-#include "SFML/Graphics/Transform.hpp"
+#include <assert.h>
+
+#include <SFML/Graphics/Transform.hpp>
+
 #include "Locator.hpp"
 
 namespace
 {
-	auto& componentManager = Locator::Instance().getComponentManager();
-	auto& node2DManager = Locator::Instance().getNode2DManager();
+	auto& systemManager = Locator::getInstance().getSystemManager();
+	auto& node2DManager = Locator::getInstance().getNode2DManager();
 }
 
 Node2D::Node2D()
 {
 	node2DManager.registerNode(this);
-	componentManager.addComponent<TransformComponent>(_id, {});
+	systemManager.addComponent<ComponentType::Transform2D>(_id);
 }
 
 Node2D::~Node2D()
@@ -65,5 +68,5 @@ void Node2D::update(float delta)
 
 void Node2D::transformDeferred(const sf::Transform& transform)
 {
-	componentManager.getComponent<TransformComponent>(_id).deferredTransform *= transform;
+	systemManager.getComponent<TransformComponent>(_id).deferredTransform *= transform;
 }
