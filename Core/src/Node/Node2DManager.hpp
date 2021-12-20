@@ -3,11 +3,7 @@
 #include <memory>
 
 class Node2D;
-
-namespace sf
-{
-	class Event;
-}
+class InputEvent;
 
 class Node2DManager
 {
@@ -16,7 +12,7 @@ public:
 	void setRoot(std::shared_ptr<Node2D> root);
 
 	void ready();
-	void input(const sf::Event& event);
+	void input(const InputEvent& event);
 	void update(float delta);
 
 private:

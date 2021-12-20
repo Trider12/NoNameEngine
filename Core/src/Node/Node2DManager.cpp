@@ -55,9 +55,9 @@ void Node2DManager::ready()
 	bfs<&Node2D::ready>(_root);
 }
 
-void Node2DManager::input(const sf::Event& event)
+void Node2DManager::input(const InputEvent& event)
 {
-	bfs<&Node2D::input, const sf::Event&>(_root, event);
+	bfs<&Node2D::input, const InputEvent&>(_root, event);
 }
 
 void Node2DManager::update(float delta)

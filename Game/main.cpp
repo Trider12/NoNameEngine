@@ -1,4 +1,5 @@
 #include <Core/CoreLoop.hpp>
+#include <Core/InputEvent.hpp>
 #include <Core/Keyboard.hpp>
 #include <Node/Sprite.hpp>
 #include <Utility/Math.hpp>
@@ -7,6 +8,14 @@ class Player : public Sprite
 {
 public:
 	Player() : Sprite() {}
+
+	void input(const InputEvent& event) override
+	{
+		if (event.type == InputEvent::EventType::MouseButtonReleased)
+		{
+			printf("sdf\n");
+		}
+	}
 
 	void update(float delta) override
 	{

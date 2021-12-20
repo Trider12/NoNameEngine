@@ -7,9 +7,10 @@
 
 namespace sf
 {
-	class Event;
 	class Transform;
 }
+
+class InputEvent;
 
 class Node2D
 {
@@ -28,7 +29,7 @@ public:
 
 protected:
 	virtual void ready();
-	virtual void input(const sf::Event& event);
+	virtual void input(const InputEvent& event);
 	virtual void update(float delta);
 
 	void translate(const sf::Vector2f& translation);

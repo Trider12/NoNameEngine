@@ -1,5 +1,6 @@
 #include "Node/Node2D.hpp"
 #include "Core/Locator.hpp"
+#include "Core/InputEvent.hpp"
 
 #include <assert.h>
 
@@ -70,7 +71,7 @@ void Node2D::ready()
 {
 }
 
-void Node2D::input(const sf::Event& event)
+void Node2D::input(const InputEvent& event)
 {
 }
 

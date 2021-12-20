@@ -97,6 +97,7 @@
     <ClCompile Include="src\System\PhysicSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Core\InputEvent.hpp" />
     <ClInclude Include="include\Core\Keyboard.hpp" />
     <ClInclude Include="include\Node\Sprite.hpp" />
     <ClInclude Include="include\Utility\Math.hpp" />
