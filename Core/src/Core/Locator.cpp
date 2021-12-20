@@ -1,3 +1,3 @@
-#include "Locator.hpp"
+#include "Core/Locator.hpp"
 
 Locator Locator::_instance = Locator();

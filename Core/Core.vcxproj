@@ -87,27 +87,27 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\CoreLoop.cpp" />
-    <ClCompile Include="src\Graphics2DSystem.cpp" />
-    <ClCompile Include="src\Locator.cpp" />
-    <ClCompile Include="src\Node2D.cpp" />
-    <ClCompile Include="src\Node2DManager.cpp" />
-    <ClCompile Include="src\PhysicSystem.cpp" />
+    <ClCompile Include="src\Core\CoreLoop.cpp" />
+    <ClCompile Include="src\System\Graphics2DSystem.cpp" />
+    <ClCompile Include="src\Core\Locator.cpp" />
+    <ClCompile Include="src\Node\Node2D.cpp" />
+    <ClCompile Include="src\Node\Node2DManager.cpp" />
+    <ClCompile Include="src\System\PhysicSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Component.hpp" />
-    <ClInclude Include="include\ComponentArray.hpp" />
-    <ClInclude Include="include\CoreLoop.hpp" />
-    <ClInclude Include="include\Graphics2DSystem.hpp" />
-    <ClInclude Include="include\Locator.hpp" />
-    <ClInclude Include="include\Node2D.hpp" />
-    <ClInclude Include="include\Node2DManager.hpp" />
-    <ClInclude Include="include\PhysicsSystem.hpp" />
-    <ClInclude Include="include\SparseObjectPool.hpp" />
-    <ClInclude Include="include\System.hpp" />
-    <ClInclude Include="include\SystemManager.hpp" />
-    <ClInclude Include="src\ComponentArray.tpp" />
-    <ClInclude Include="src\SystemManager.tpp" />
+    <ClInclude Include="src\Component\Component.hpp" />
+    <ClInclude Include="src\Component\ComponentArray.hpp" />
+    <ClInclude Include="include\Core\CoreLoop.hpp" />
+    <ClInclude Include="src\System\Graphics2DSystem.hpp" />
+    <ClInclude Include="src\Core\Locator.hpp" />
+    <ClInclude Include="include\Node\Node2D.hpp" />
+    <ClInclude Include="src\Node\Node2DManager.hpp" />
+    <ClInclude Include="src\System\PhysicsSystem.hpp" />
+    <ClInclude Include="src\Misc\SparseObjectPool.hpp" />
+    <ClInclude Include="src\System\System.hpp" />
+    <ClInclude Include="src\System\SystemManager.hpp" />
+    <ClInclude Include="src\Component\ComponentArray.tpp" />
+    <ClInclude Include="src\System\SystemManager.tpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,5 @@
-#include "PhysicsSystem.hpp"
-#include "SystemManager.hpp"
+#include "System/PhysicsSystem.hpp"
+#include "System/SystemManager.hpp"
 
 namespace
 {

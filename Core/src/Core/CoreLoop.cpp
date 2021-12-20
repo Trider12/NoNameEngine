@@ -1,4 +1,4 @@
-#include "CoreLoop.hpp"
+#include "Core/CoreLoop.hpp"
 
 #if defined(_WIN32) && !defined(_DEBUG)
 #define WIN32_LEAN_AND_MEAN
@@ -10,7 +10,7 @@
 #include <imgui.h>
 #include <SFML/Window/Event.hpp>
 
-#include "Locator.hpp"
+#include "Core/Locator.hpp"
 
 namespace
 {

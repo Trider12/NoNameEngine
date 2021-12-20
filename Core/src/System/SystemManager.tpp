@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node2D.hpp"
+#include "Node/Node2D.hpp"
 
 template <DerivedSystem T>
 T& SystemManager::getSystem()

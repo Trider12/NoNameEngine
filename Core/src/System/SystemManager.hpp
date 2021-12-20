@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Graphics2DSystem.hpp"
-#include "PhysicsSystem.hpp"
+#include "System/Graphics2DSystem.hpp"
+#include "System/PhysicsSystem.hpp"
 
 class Node2D;
 

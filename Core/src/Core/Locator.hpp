@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Node2DManager.hpp"
-#include "SystemManager.hpp"
+#include "Node/Node2DManager.hpp"
+#include "System/SystemManager.hpp"
 
 class Locator
 {

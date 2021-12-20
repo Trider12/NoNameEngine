@@ -1,9 +1,9 @@
-#include "Node2DManager.hpp"
+#include "Node/Node2DManager.hpp"
 
 #include <queue>
 #include <cassert>
 
-#include "Node2D.hpp"
+#include "Node/Node2D.hpp"
 
 namespace
 {

@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-#include "Node2D.hpp"
+#include "Node/Node2D.hpp"
 
 template <typename T>
 ComponentArray<T>::ComponentArray(uint64_t size)

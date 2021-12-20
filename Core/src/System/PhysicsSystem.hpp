@@ -1,8 +1,8 @@
 #pragma once
 
-#include "System.hpp"
-#include "Component.hpp"
-#include "ComponentArray.hpp"
+#include "System/System.hpp"
+#include "Component/Component.hpp"
+#include "Component/ComponentArray.hpp"
 
 class PhysicsSystem : public System
 {

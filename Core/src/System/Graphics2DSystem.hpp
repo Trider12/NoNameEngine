@@ -2,9 +2,9 @@
 
 #include <SFML/Graphics/VertexBuffer.hpp>
 
-#include "System.hpp"
-#include "Component.hpp"
-#include "ComponentArray.hpp"
+#include "System/System.hpp"
+#include "Component/Component.hpp"
+#include "Component/ComponentArray.hpp"
 
 class Graphics2DSystem : public System
 {

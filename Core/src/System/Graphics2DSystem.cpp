@@ -1,5 +1,5 @@
-#include "Graphics2DSystem.hpp"
-#include "SystemManager.hpp"
+#include "System/Graphics2DSystem.hpp"
+#include "System/SystemManager.hpp"
 
 namespace
 {

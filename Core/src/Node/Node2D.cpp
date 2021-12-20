@@ -1,10 +1,10 @@
-#include "Node2D.hpp"
+#include "Node/Node2D.hpp"
 
 #include <assert.h>
 
 #include <SFML/Graphics/Transform.hpp>
 
-#include "Locator.hpp"
+#include "Core/Locator.hpp"
 
 namespace
 {
