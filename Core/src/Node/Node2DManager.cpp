@@ -14,7 +14,7 @@ namespace
 			auto node = queue.front();
 			queue.pop();
 
-			//((*node).*Func)(args...);
+			((*node).*Func)(args...);
 
 			for (auto& child : node->getChildren())
 			{

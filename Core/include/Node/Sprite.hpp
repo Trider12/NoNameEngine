@@ -16,6 +16,6 @@ public:
 	const sf::Vector2f& getDimensions() const;
 
 private:
-	sf::Color _color = sf::Color::White;
+	sf::Color _color;
 	sf::Vector2f _dimensions;
 };

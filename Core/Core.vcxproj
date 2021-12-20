@@ -87,6 +87,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Keyboard.cpp" />
     <ClCompile Include="src\Node\Sprite.cpp" />
     <ClCompile Include="src\Core\CoreLoop.cpp" />
     <ClCompile Include="src\System\RenderSystem.cpp" />
@@ -96,7 +97,9 @@
     <ClCompile Include="src\System\PhysicSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Core\Keyboard.hpp" />
     <ClInclude Include="include\Node\Sprite.hpp" />
+    <ClInclude Include="include\Utility\Math.hpp" />
     <ClInclude Include="src\Component\Component.hpp" />
     <ClInclude Include="src\Component\ComponentArray.hpp" />
     <ClInclude Include="include\Core\CoreLoop.hpp" />

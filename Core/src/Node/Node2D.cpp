@@ -92,3 +92,9 @@ void Node2D::translate(const sf::Vector2f& translation)
 {
 	systemManager.getComponent<TransformComponent>(_id).globalTransform.translate(translation);
 }
+
+void Node2D::translateDeferred(const sf::Vector2f& translation)
+{
+	auto transform = sf::Transform::Identity;
+	transformDeferred(transform.translate(translation));
+}

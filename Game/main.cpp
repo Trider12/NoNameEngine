@@ -1,5 +1,40 @@
 #include <Core/CoreLoop.hpp>
+#include <Core/Keyboard.hpp>
 #include <Node/Sprite.hpp>
+#include <Utility/Math.hpp>
+
+class Player : public Sprite
+{
+public:
+	Player() : Sprite() {}
+
+	void update(float delta) override
+	{
+		sf::Vector2f input;
+
+		if (Keyboard::isKeyPressed(Keyboard::Key::A))
+		{
+			input.x += -1.f;
+		}
+		if (Keyboard::isKeyPressed(Keyboard::Key::D))
+		{
+			input.x += 1.f;
+		}
+		if (Keyboard::isKeyPressed(Keyboard::Key::W))
+		{
+			input.y += -1.f;
+		}
+		if (Keyboard::isKeyPressed(Keyboard::Key::S))
+		{
+			input.y += 1.f;
+		}
+
+		if (!areEqualApprox(input, sf::Vector2f(0.f, 0.f)))
+			translateDeferred(normalized(input) * _speed * delta);
+	}
+public:
+	float _speed = 200;
+};
 
 int main()
 {
@@ -18,6 +53,7 @@ int main()
 	};
 
 	root->addChildren(children);
+	root->addChild(nodePtr(new Player()));
 
 	CORE_LOOP(windowSize, "TDS", root);
 

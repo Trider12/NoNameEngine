@@ -8,12 +8,18 @@ namespace
 	auto& systemManager = Locator::getInstance().getSystemManager();
 }
 
-Sprite::Sprite() : Node2D(), _dimensions{ sf::Vector2f(100.f, 100.f) }
+Sprite::Sprite()
+	: Node2D()
+	, _dimensions{ sf::Vector2f(100.f, 100.f) }
+	, _color{ sf::Color::White }
 {
 	systemManager.addComponent<ComponentType::ColorRect>(*this);
 }
 
-Sprite::Sprite(const sf::Color& color, const sf::Vector2f& position, const sf::Vector2f& dimensions) : Node2D(), _dimensions{ dimensions }, _color{ color }
+Sprite::Sprite(const sf::Color& color, const sf::Vector2f& position, const sf::Vector2f& dimensions)
+	: Node2D()
+	, _dimensions{ dimensions }
+	, _color{ color }
 {
 	systemManager.addComponent<ComponentType::ColorRect>(*this);
 	translate(position);
