@@ -9,12 +9,12 @@
 namespace
 {
 	auto& systemManager = Locator::getInstance().getSystemManager();
-	auto& node2DManager = Locator::getInstance().getNode2DManager();
+	auto& nodeManager = Locator::getInstance().getNode2DManager();
 }
 
 Node2D::Node2D()
 {
-	node2DManager.registerNode(this);
+	nodeManager.registerNode(this);
 	systemManager.addComponent<ComponentType::Transform2D>(_id);
 }
 

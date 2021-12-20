@@ -1,24 +1,26 @@
 #include "Node2DManager.hpp"
 
-#include <deque>
+#include <queue>
 #include <cassert>
 
 #include "Node2D.hpp"
 
 namespace
 {
-	template<auto func>
-	static void bfs(std::shared_ptr<Node2D> root)
+	template<auto Func, typename... Args>
+	static void bfs(std::shared_ptr<Node2D> root, Args... args)
 	{
-		for (std::deque<std::shared_ptr<Node2D>> deque(root); !deque.empty();)
+		for (std::queue<Node2D*> queue({ root.get() }); !queue.empty();)
 		{
-			auto node = deque.front();
-			deque.pop_front();
+			auto node = queue.front();
+			queue.pop();
 
-			func(node);
+			((*node).*Func)(args...);
 
-			const auto& children = node->getChildren();
-			deque.insert(deque.end(), children.begin(), children.end());
+			for (auto& child : node->getChildren())
+			{
+				queue.push(&child);
+			}
 		}
 	}
 }
@@ -36,6 +38,21 @@ void Node2DManager::setRoot(std::shared_ptr<Node2D> root)
 	}
 
 	_root = root;
+}
+
+void Node2DManager::ready()
+{
+	bfs<&Node2D::ready>(_root);
+}
+
+void Node2DManager::input(const sf::Event& event)
+{
+	bfs<&Node2D::input, const sf::Event&>(_root, event);
+}
+
+void Node2DManager::update(float delta)
+{
+	bfs<&Node2D::update, float>(_root, delta);
 }
 
 Node2DManager::Node2DManager()

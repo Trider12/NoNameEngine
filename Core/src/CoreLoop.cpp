@@ -18,7 +18,7 @@ namespace
 	const sf::Color clearColorDefault = sf::Color(100, 100, 100, 255);
 
 	auto& systemManager = Locator::getInstance().getSystemManager();
-	auto& node2DManager = Locator::getInstance().getNode2DManager();
+	auto& nodeManager = Locator::getInstance().getNode2DManager();
 }
 
 CoreLoop::CoreLoop(const sf::Vector2u& windowSize, const std::string& windowTitle, std::shared_ptr<Node2D> root) : _isRunning{ true }
@@ -31,6 +31,8 @@ CoreLoop::CoreLoop(const sf::Vector2u& windowSize, const std::string& windowTitl
 	_window.setActive(false);
 
 	systemManager.setRenderTarget(_window);
+	nodeManager.setRoot(root);
+	nodeManager.ready();
 
 	ImGui::SFML::Init(_window);
 	ImGui::GetIO().IniFilename = nullptr;
@@ -59,17 +61,23 @@ void CoreLoop::update()
 			_isRunning = false;
 			return;
 		}
+
+		nodeManager.input(event);
 	}
+
+	auto delta = _updateDeltaClock.restart().asSeconds();
 
 	for (_elapsedSeconds += _updateDeltaClock.restart().asSeconds(); _elapsedSeconds - fixedDelta > std::numeric_limits<float>::epsilon(); _elapsedSeconds -= fixedDelta)
 	{
 		systemManager.update<PhysicsSystem>(fixedDelta);
 	}
+
+	nodeManager.update(delta);
 }
 
 std::shared_ptr<Node2D> CoreLoop::getRoot()
 {
-	return node2DManager.getRoot();
+	return nodeManager.getRoot();
 }
 
 void CoreLoop::render()

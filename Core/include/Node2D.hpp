@@ -18,6 +18,7 @@ public:
 
 	Node2D& addChild(Node2D child);
 	Node2D& removeChild(Node2D& child);
+	std::vector<Node2D>& getChildren() { return _children; }
 
 	friend bool operator==(const Node2D& a, const Node2D& b) { return std::addressof(a) == std::addressof(b); }
 
@@ -28,7 +29,6 @@ protected:
 
 	void transformDeferred(const sf::Transform& transform);
 
-	const std::vector<Node2D>& getChildren() const { return _children; }
 	Node2D* getParent() const { return _parent; }
 
 private:

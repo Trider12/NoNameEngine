@@ -4,12 +4,20 @@
 
 class Node2D;
 
+namespace sf
+{
+	class Event;
+}
+
 class Node2DManager
 {
 public:
 	std::shared_ptr<Node2D> getRoot();
-
 	void setRoot(std::shared_ptr<Node2D> root);
+
+	void ready();
+	void input(const sf::Event& event);
+	void update(float delta);
 
 private:
 	Node2DManager();
