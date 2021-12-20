@@ -9,9 +9,9 @@ T& SystemManager::getSystem()
 	{
 		return _physicsSystem;
 	}
-	else if constexpr (std::is_same_v<T, Graphics2DSystem>)
+	else if constexpr (std::is_same_v<T, RenderSystem>)
 	{
-		return _graphicsSystem;
+		return _renderSystem;
 	}
 	else
 	{
@@ -26,35 +26,54 @@ void SystemManager::update(float delta)
 	{
 		_physicsSystem.update(delta);
 	}
+	else if constexpr (std::is_same_v<T, RenderSystem>)
+	{
+		_renderSystem.update(delta);
+	}
 	else
 	{
 		static_assert(always_false<T>, "No specialization!");
 	}
 }
 
-template <ComponentType>
+template <ComponentType T>
 void SystemManager::addComponent(const Node2D& node)
 {
-	addComponent(node.getId());
-}
-
-template <ComponentType type>
-void SystemManager::addComponent(uint64_t nodeId)
-{
-	if constexpr (type == ComponentType::Transform2D || type == ComponentType::Collision2D)
+	if constexpr (T == ComponentType::Transform2D || T == ComponentType::Collision2D)
 	{
-		_physicsSystem.addComponent<type>(nodeId);
+		_physicsSystem.addComponent<T>(node);
+	}
+	else if constexpr (T == ComponentType::ColorRect || T == ComponentType::Texture)
+	{
+		_renderSystem.addComponent<T>(node);
 	}
 	else
 	{
-		static_assert(always_false<type>, "No specialization!");
+		static_assert(always_false<T>, "No specialization!");
+	}
+}
+
+template <ComponentType T>
+void SystemManager::removeComponent(const Node2D& node)
+{
+	if constexpr (T == ComponentType::Transform2D || T == ComponentType::Collision2D)
+	{
+		_physicsSystem.addComponent<T>(node);
+	}
+	else if constexpr (T == ComponentType::ColorRect || T == ComponentType::Texture)
+	{
+		_renderSystem.removeComponent<T>(node);
+	}
+	else
+	{
+		static_assert(always_false<T>, "No specialization!");
 	}
 }
 
 template <DerivedComponent T>
 T& SystemManager::getComponent(const Node2D& node)
 {
-	getComponent(node.getId());
+	return getComponent<T>(node.getId());
 }
 
 template <DerivedComponent T>

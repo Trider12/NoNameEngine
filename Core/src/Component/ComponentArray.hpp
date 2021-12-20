@@ -39,12 +39,16 @@ public:
 	Iterator end();
 
 	uint64_t activeCount() const;
+
 	void addComponent(const Node2D& node);
 	void addComponent(uint64_t nodeId);
+	void addComponent(const Node2D& node, T component);
+	void addComponent(uint64_t nodeId, T component);
 	void removeComponent(const Node2D& node);
 	void removeComponent(uint64_t nodeId);
 	T& getComponent(const Node2D& node);
 	T& getComponent(uint64_t nodeId);
+
 	uint64_t getNodeId(uint64_t index);
 
 private:

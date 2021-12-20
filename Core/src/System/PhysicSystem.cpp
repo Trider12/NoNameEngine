@@ -21,6 +21,8 @@ void PhysicsSystem::update(float delta)
 		transformComponent.globalTransform *= transformComponent.deferredTransform;
 		transformComponent.deferredTransform = sf::Transform::Identity;
 	}
+
+	_systemManager.getSystem<RenderSystem>().setTransformsDirty();
 }
 
 void PhysicsSystem::transformDeferred(const Node2D& node, sf::Transform transform)

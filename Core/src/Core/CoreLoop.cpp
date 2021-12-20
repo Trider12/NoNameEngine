@@ -1,4 +1,5 @@
 #include "Core/CoreLoop.hpp"
+#include "Core/Locator.hpp"
 
 #if defined(_WIN32) && !defined(_DEBUG)
 #define WIN32_LEAN_AND_MEAN
@@ -9,8 +10,6 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include <SFML/Window/Event.hpp>
-
-#include "Core/Locator.hpp"
 
 namespace
 {
@@ -67,7 +66,7 @@ void CoreLoop::update()
 
 	auto delta = _updateDeltaClock.restart().asSeconds();
 
-	for (_elapsedSeconds += _updateDeltaClock.restart().asSeconds(); _elapsedSeconds - fixedDelta > std::numeric_limits<float>::epsilon(); _elapsedSeconds -= fixedDelta)
+	for (_elapsedSeconds += delta; _elapsedSeconds - fixedDelta > std::numeric_limits<float>::epsilon(); _elapsedSeconds -= fixedDelta)
 	{
 		systemManager.update<PhysicsSystem>(fixedDelta);
 	}
@@ -82,9 +81,13 @@ std::shared_ptr<Node2D> CoreLoop::getRoot()
 
 void CoreLoop::render()
 {
-	ImGui::SFML::Update(_window, _renderDeltaClock.restart());
+	const auto dt = _renderDeltaClock.restart();
+
+	ImGui::SFML::Update(_window, dt);
 
 	_window.clear(clearColorDefault);
+
+	systemManager.update<RenderSystem>(dt.asSeconds());
 
 	ImGui::SFML::Render(_window);
 	_window.display();
@@ -92,8 +95,10 @@ void CoreLoop::render()
 
 void CoreLoop::drawUi()
 {
+	// guess no UI this time, huh?
 }
 
 void CoreLoop::updateAi()
 {
+	// TODO
 }

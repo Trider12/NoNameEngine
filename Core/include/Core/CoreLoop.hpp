@@ -35,4 +35,4 @@ private:
 	float _elapsedSeconds = 0.f;
 };
 
-#define CORE_LOOP(width, height, name, root) for (CoreLoop loop({width, height}, name, root); loop.isRunning(); loop.update())
+#define CORE_LOOP(dimensions, name, root) for (CoreLoop loop(dimensions, name, root); loop.isRunning(); loop.update())

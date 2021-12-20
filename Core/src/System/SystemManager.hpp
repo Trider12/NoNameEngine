@@ -1,6 +1,6 @@
 #pragma once
 
-#include "System/Graphics2DSystem.hpp"
+#include "System/RenderSystem.hpp"
 #include "System/PhysicsSystem.hpp"
 
 class Node2D;
@@ -10,7 +10,7 @@ class SystemManager
 public:
 	void setRenderTarget(sf::RenderTarget& target)
 	{
-		_graphicsSystem.setRenderTarget(&target);
+		_renderSystem.setRenderTarget(&target);
 	}
 
 	template <DerivedSystem T>
@@ -20,21 +20,24 @@ public:
 
 	template <DerivedSystem T>
 	void update(float delta);
-	template <ComponentType>
+
+	template <ComponentType T>
 	void addComponent(const Node2D& node);
-	template <ComponentType type>
-	void addComponent(uint64_t nodeId);
+
+	template <ComponentType T>
+	void removeComponent(const Node2D& node);
+
 	template <DerivedComponent T>
 	T& getComponent(const Node2D& node);
 	template <DerivedComponent T>
 	T& getComponent(uint64_t nodeId);
 
 private:
-	SystemManager() : _graphicsSystem{ Graphics2DSystem(*this) }, _physicsSystem{ PhysicsSystem(*this) }
+	SystemManager() : _renderSystem{ RenderSystem(*this) }, _physicsSystem{ PhysicsSystem(*this) }
 	{
 	}
 
-	Graphics2DSystem _graphicsSystem;
+	RenderSystem _renderSystem;
 	PhysicsSystem _physicsSystem;
 
 	friend class Locator;

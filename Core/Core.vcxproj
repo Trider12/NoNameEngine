@@ -87,18 +87,20 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Node\Sprite.cpp" />
     <ClCompile Include="src\Core\CoreLoop.cpp" />
-    <ClCompile Include="src\System\Graphics2DSystem.cpp" />
+    <ClCompile Include="src\System\RenderSystem.cpp" />
     <ClCompile Include="src\Core\Locator.cpp" />
     <ClCompile Include="src\Node\Node2D.cpp" />
     <ClCompile Include="src\Node\Node2DManager.cpp" />
     <ClCompile Include="src\System\PhysicSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Node\Sprite.hpp" />
     <ClInclude Include="src\Component\Component.hpp" />
     <ClInclude Include="src\Component\ComponentArray.hpp" />
     <ClInclude Include="include\Core\CoreLoop.hpp" />
-    <ClInclude Include="src\System\Graphics2DSystem.hpp" />
+    <ClInclude Include="src\System\RenderSystem.hpp" />
     <ClInclude Include="src\Core\Locator.hpp" />
     <ClInclude Include="include\Node\Node2D.hpp" />
     <ClInclude Include="src\Node\Node2DManager.hpp" />

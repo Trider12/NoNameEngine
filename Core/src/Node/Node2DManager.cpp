@@ -1,9 +1,8 @@
 #include "Node/Node2DManager.hpp"
+#include "Node/Node2D.hpp"
 
 #include <queue>
 #include <cassert>
-
-#include "Node/Node2D.hpp"
 
 namespace
 {
@@ -15,14 +14,25 @@ namespace
 			auto node = queue.front();
 			queue.pop();
 
-			((*node).*Func)(args...);
+			//((*node).*Func)(args...);
 
 			for (auto& child : node->getChildren())
 			{
-				queue.push(&child);
+				queue.push(child.get());
 			}
 		}
 	}
+}
+
+Node2DManager::Node2DManager()
+{
+}
+
+void Node2DManager::registerNode(Node2D* node)
+{
+	assert(node->_id == 0 && "Node already registered!");
+	assert(_nextId != 0 && "Node overflow!");
+	node->_id = _nextId++;
 }
 
 std::shared_ptr<Node2D> Node2DManager::getRoot()
@@ -53,15 +63,4 @@ void Node2DManager::input(const sf::Event& event)
 void Node2DManager::update(float delta)
 {
 	bfs<&Node2D::update, float>(_root, delta);
-}
-
-Node2DManager::Node2DManager()
-{
-}
-
-void Node2DManager::registerNode(Node2D* node)
-{
-	assert(node->_id == 0 && "Node already registered!");
-	assert(_nextId != 0 && "Node overflow!");
-	node->_id = _nextId++;
 }

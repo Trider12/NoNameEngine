@@ -27,6 +27,9 @@ struct TransformComponent : public Component
 
 struct QuadVerticesComponent : public Component
 {
+	QuadVerticesComponent() {}
+	QuadVerticesComponent(const sf::Vertex& v1, const sf::Vertex& v2, const sf::Vertex& v3, const sf::Vertex& v4) :vertices{ v1, v2, v3, v4 } {}
+
 	sf::Vertex vertices[4];
 };
 
