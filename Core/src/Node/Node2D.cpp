@@ -4,6 +4,7 @@
 
 #include <assert.h>
 
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Transform.hpp>
 
 namespace
@@ -16,6 +17,11 @@ Node2D::Node2D()
 {
 	nodeManager.registerNode(this);
 	systemManager.addComponent<ComponentType::Transform2D>(*this);
+}
+
+Node2D::Node2D(const sf::Vector2f& translation) : Node2D()
+{
+	translate(translation);
 }
 
 Node2D::~Node2D()

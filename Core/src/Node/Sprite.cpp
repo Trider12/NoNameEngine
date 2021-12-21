@@ -17,12 +17,11 @@ Sprite::Sprite()
 }
 
 Sprite::Sprite(const sf::Color& color, const sf::Vector2f& position, const sf::Vector2f& dimensions)
-	: Node2D()
+	: Node2D(position)
 	, _dimensions{ dimensions }
 	, _color{ color }
 {
 	systemManager.addComponent<ComponentType::ColorRect>(*this);
-	translate(position);
 }
 
 Sprite::~Sprite()

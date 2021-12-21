@@ -94,7 +94,7 @@
     <ClCompile Include="src\Core\Locator.cpp" />
     <ClCompile Include="src\Node\Node2D.cpp" />
     <ClCompile Include="src\Node\Node2DManager.cpp" />
-    <ClCompile Include="src\System\PhysicSystem.cpp" />
+    <ClCompile Include="src\System\PhysicsSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Core\InputEvent.hpp" />

@@ -60,6 +60,7 @@ private:
 	PhysicsSystem(SystemManager& manager);
 
 	ComponentArray<TransformComponent> _transformComponents;
+	ComponentArray<CollisionComponent> _collisionComponents;
 
 	friend class SystemManager;
 };
