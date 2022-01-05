@@ -53,12 +53,25 @@ void SystemManager::addComponent(const Node2D& node)
 	}
 }
 
+template <DerivedComponent T>
+void SystemManager::addComponent(const Node2D& node, T component)
+{
+	if constexpr (std::is_same_v<T, CollisionComponent>)
+	{
+		_physicsSystem.addComponent<T>(node, component);
+	}
+	else
+	{
+		static_assert(always_false<T>, "No specialization!");
+	}
+}
+
 template <ComponentType T>
 void SystemManager::removeComponent(const Node2D& node)
 {
 	if constexpr (T == ComponentType::Transform2D || T == ComponentType::Collision2D)
 	{
-		_physicsSystem.addComponent<T>(node);
+		_physicsSystem.removeComponent<T>(node);
 	}
 	else if constexpr (T == ComponentType::ColorRect || T == ComponentType::Texture)
 	{

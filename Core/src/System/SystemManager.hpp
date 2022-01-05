@@ -23,6 +23,8 @@ public:
 
 	template <ComponentType T>
 	void addComponent(const Node2D& node);
+	template <DerivedComponent T>
+	void addComponent(const Node2D& node, T component);
 
 	template <ComponentType T>
 	void removeComponent(const Node2D& node);

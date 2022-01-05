@@ -37,26 +37,16 @@ uint64_t ComponentArray<T>::activeCount() const
 }
 
 template <typename T>
-void ComponentArray<T>::addComponent(const Node2D& node)
-{
-	addComponent(node.getId());
-}
-
-template <typename T>
 void ComponentArray<T>::addComponent(uint64_t nodeId)
 {
 	addComponent(nodeId, T{});
 }
 
 template <typename T>
-void ComponentArray<T>::addComponent(const Node2D& node, T component)
-{
-	addComponent(node.getId(), component);
-}
-
-template <typename T>
 void ComponentArray<T>::addComponent(uint64_t nodeId, T component)
 {
+	assert(_nodeId2cidMap.find(nodeId) == _nodeId2cidMap.end());
+
 	if (_activeCount == _components.size())
 	{
 		_components.push_back(component);
@@ -67,12 +57,6 @@ void ComponentArray<T>::addComponent(uint64_t nodeId, T component)
 
 	_nodeId2cidMap[nodeId] = cid;
 	_cid2nodeIdMap[cid] = nodeId;
-}
-
-template <typename T>
-void ComponentArray<T>::removeComponent(const Node2D& node)
-{
-	removeComponent(node.getId());
 }
 
 template <typename T>
@@ -91,12 +75,6 @@ void ComponentArray<T>::removeComponent(uint64_t nodeId)
 
 	_nodeId2cidMap.erase(nodeId);
 	_cid2nodeIdMap.erase(_activeCount);
-}
-
-template <typename T>
-T& ComponentArray<T>::getComponent(const Node2D& node)
-{
-	return getComponent(node.getId());
 }
 
 template <typename T>

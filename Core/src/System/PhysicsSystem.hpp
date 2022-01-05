@@ -16,6 +16,23 @@ public:
 		{
 			_transformComponents.addComponent(node.getId());
 		}
+		else if constexpr (T == ComponentType::Collision2D)
+		{
+			_collisionComponents.addComponent(node.getId());
+		}
+		else
+		{
+			static_assert(always_false<T>, "No specialization!");
+		}
+	}
+
+	template <DerivedComponent T>
+	void addComponent(const Node2D& node, T component)
+	{
+		if constexpr (std::is_same_v<T, CollisionComponent>)
+		{
+			_collisionComponents.addComponent(node.getId(), component);
+		}
 		else
 		{
 			static_assert(always_false<T>, "No specialization!");

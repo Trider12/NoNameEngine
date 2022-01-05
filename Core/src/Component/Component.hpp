@@ -35,18 +35,19 @@ struct QuadVerticesComponent : public Component
 
 struct CollisionComponent : public Component
 {
-	CollisionComponent()
-		: collisionShapeType{ CollisionShapeType::AABB }
-		, collisionShape{ CollisionShape { sf::FloatRect() } }
+	enum class CollisionObjectType : uint8_t
 	{
-	}
+		Static = 0,
+		Kinematic = 1,
+		//Rigid = 2 // TODO
+	};
 
-	enum CollisionShapeType
+	enum class CollisionShapeType : uint8_t
 	{
 		AABB = 0,
-		//Rectangle = 1, // TODO
-		Circle = 2
-	} collisionShapeType;
+		Circle = 1,
+		//Rectangle = 2 // TODO
+	};
 
 	struct CollisionShape
 	{
@@ -60,5 +61,42 @@ struct CollisionComponent : public Component
 				float radius;
 			};
 		};
-	} collisionShape;
+	};
+
+	CollisionComponent()
+		: collisionObjectType{ CollisionObjectType::Static }
+		, collisionShapeType{ CollisionShapeType::AABB }
+		, collisionShape{ CollisionShape { sf::FloatRect() } }
+	{
+	}
+
+	CollisionComponent(CollisionObjectType objectType, CollisionShapeType shapeType)
+		: collisionObjectType{ objectType }
+		, collisionShapeType{ shapeType }
+		, collisionShape{ }
+	{
+		switch (collisionShapeType)
+		{
+			case CollisionComponent::CollisionShapeType::AABB:
+			{
+				collisionShape.rect = sf::FloatRect(0.f, 0.f, 100.f, 100.f);
+				break;
+			}
+			case CollisionComponent::CollisionShapeType::Circle:
+			{
+				collisionShape.center = {};
+				collisionShape.radius = 10.f;
+				break;
+			}
+			default:
+			{
+				collisionShape.rect = sf::FloatRect(0.f, 0.f, 100.f, 100.f);
+				break;
+			}
+		}
+	}
+
+	CollisionObjectType collisionObjectType;
+	CollisionShapeType collisionShapeType;
+	CollisionShape collisionShape;
 };

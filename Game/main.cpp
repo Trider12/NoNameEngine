@@ -1,13 +1,21 @@
 #include <Core/CoreLoop.hpp>
 #include <Core/InputEvent.hpp>
 #include <Core/Keyboard.hpp>
+
 #include <Node/Sprite.hpp>
+#include <Node/KinematicBody2D.hpp>
+#include <Node/StaticBody2D.hpp>
+
 #include <Utility/Math.hpp>
 
-class Player : public Sprite
+class Player : public KinematicBody2D
 {
 public:
-	Player() : Sprite() {}
+	Player() : KinematicBody2D()
+	{
+		_sprite.reset(new Sprite(sf::Color::Blue, {}, { 100.f, 100.f }));
+		addChild(_sprite);
+	}
 
 	void input(const InputEvent& event) override
 	{
@@ -41,8 +49,22 @@ public:
 		if (!areEqualApprox(input, sf::Vector2f(0.f, 0.f)))
 			translateDeferred(normalized(input) * _speed * delta);
 	}
-public:
+private:
+	std::shared_ptr<Sprite> _sprite;
+
 	float _speed = 200;
+};
+
+class Obstacle : public StaticBody2D
+{
+public:
+	Obstacle(const sf::Vector2f& position, const sf::Vector2f& dimensions) : StaticBody2D(position, dimensions)
+	{
+		_sprite.reset(new Sprite(sf::Color::White, position, dimensions));
+		addChild(_sprite);
+	}
+private:
+	std::shared_ptr<Sprite> _sprite;
 };
 
 int main()
@@ -56,9 +78,9 @@ int main()
 
 	std::vector<nodePtr> children =
 	{
-		nodePtr(new Sprite(sf::Color::Red, {center.x * 0.5f, center.y}, {100, 100})),
-		nodePtr(new Sprite(sf::Color::Green, center, {100, 100})),
-		nodePtr(new Sprite(sf::Color::Blue, {center.x * 1.5f, center.y}, {100, 100})),
+		nodePtr(new Obstacle({center.x * 0.5f, center.y}, {100, 100})),
+		nodePtr(new Obstacle(center, {100, 100})),
+		nodePtr(new Obstacle({center.x * 1.5f, center.y}, {100, 100})),
 	};
 
 	root->addChildren(children);
