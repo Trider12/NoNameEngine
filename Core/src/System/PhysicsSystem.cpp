@@ -5,7 +5,7 @@ namespace
 {
 	const uint8_t initialNumberOfComponents = 32;
 
-	void resolveAABBCollision(CollisionComponent& c1, CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2);
+	void preventAABBCollision(CollisionComponent& c1, CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2);
 }
 
 PhysicsSystem::PhysicsSystem(SystemManager& manager)
@@ -21,16 +21,17 @@ void PhysicsSystem::update(float delta)
 
 	for (auto i = 0; i < _collisionComponents.activeCount(); ++i)
 	{
+		auto& c1 = _collisionComponents[i];
+		auto& t1 = _transformComponents[_collisionComponents.getNodeId(i)];
+
 		for (auto j = i + 1; j < _collisionComponents.activeCount(); ++j)
 		{
-			auto& c1 = _collisionComponents[i];
 			auto& c2 = _collisionComponents[j];
-			auto& t1 = _transformComponents[_collisionComponents.getNodeId(i)];
 			auto& t2 = _transformComponents[_collisionComponents.getNodeId(j)];
 
 			if (c1.collisionShapeType == CollisionComponent::CollisionShapeType::AABB && c2.collisionShapeType == CollisionComponent::CollisionShapeType::AABB)
 			{
-				resolveAABBCollision(c1, c2, t1, t2);
+				preventAABBCollision(c1, c2, t1, t2);
 			}
 		}
 	}
@@ -51,10 +52,10 @@ void PhysicsSystem::transformDeferred(const Node2D& node, sf::Transform transfor
 
 namespace
 {
-	void resolveAABBCollision(CollisionComponent& c1, CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
+	void preventAABBCollision(CollisionComponent& c1, CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
 	{
-		auto rect1 = t1.globalTransform.combine(t1.deferredTransform).transformRect(c1.collisionShape.rect);
-		auto rect2 = t2.globalTransform.combine(t2.deferredTransform).transformRect(c2.collisionShape.rect);
+		auto rect1 = (t1.globalTransform * t1.deferredTransform).transformRect(c1.collisionShape.rect);
+		auto rect2 = (t2.globalTransform * t2.deferredTransform).transformRect(c2.collisionShape.rect);
 
 		if (rect1.left > rect2.left + rect2.width || rect2.left > rect1.left + rect1.width ||
 			rect1.top > rect2.top + rect2.height || rect2.top > rect1.top + rect1.height)
@@ -72,25 +73,29 @@ namespace
 			return;
 		}
 
-		if (c1.collisionObjectType == CollisionComponent::CollisionObjectType::Static && c2.collisionObjectType == CollisionComponent::CollisionObjectType::Static)
+		if (c1.collisionType == CollisionComponent::CollisionType::Static && c2.collisionType == CollisionComponent::CollisionType::Static)
 		{
-			fprintf(stderr, "Warning: static collisions will not be resolved!");
+#ifdef _DEBUG
+			fprintf(stderr, "Warning: pure static collisions ignored!\n");
+#endif // _DEBUG
 			return;
 		}
 
-		if (c1.collisionObjectType == CollisionComponent::CollisionObjectType::Kinematic && c2.collisionObjectType == CollisionComponent::CollisionObjectType::Kinematic)
+		if (c1.collisionType == CollisionComponent::CollisionType::Kinematic && c2.collisionType == CollisionComponent::CollisionType::Kinematic)
 		{
-			assert(false && "TODO: kinematic collisions");
+#ifdef _DEBUG
+			fprintf(stderr, "Warning: pure kinematic collisions ignored!\n");
+#endif // _DEBUG
 			return;
 		}
 
-		auto depthX = dx > 0.f ? minDx - dx : -minDx - dx;
-		auto depthY = dy > 0.f ? minDy - dy : -minDy - dy;
+		auto depthX = std::copysignf(minDx, dx) - dx;
+		auto depthY = std::copysignf(minDy, dy) - dy;
 
 		auto translation = std::fabsf(depthX) <= std::fabsf(depthY) ? sf::Vector2f(depthX, 0.f) : sf::Vector2f(0.f, depthY);
 		auto fixTransform = sf::Transform::Identity;
 
-		if (c1.collisionObjectType == CollisionComponent::CollisionObjectType::Kinematic)
+		if (c1.collisionType == CollisionComponent::CollisionType::Kinematic)
 		{
 			fixTransform.translate(translation);
 			t1.deferredTransform *= fixTransform;

@@ -35,7 +35,7 @@ struct QuadVerticesComponent : public Component
 
 struct CollisionComponent : public Component
 {
-	enum class CollisionObjectType : uint8_t
+	enum class CollisionType : uint8_t
 	{
 		Static = 0,
 		Kinematic = 1,
@@ -64,14 +64,14 @@ struct CollisionComponent : public Component
 	};
 
 	CollisionComponent()
-		: collisionObjectType{ CollisionObjectType::Static }
+		: collisionType{ CollisionType::Static }
 		, collisionShapeType{ CollisionShapeType::AABB }
 		, collisionShape{ CollisionShape { sf::FloatRect() } }
 	{
 	}
 
-	CollisionComponent(CollisionObjectType objectType, CollisionShapeType shapeType)
-		: collisionObjectType{ objectType }
+	CollisionComponent(CollisionType type, CollisionShapeType shapeType)
+		: collisionType{ type }
 		, collisionShapeType{ shapeType }
 		, collisionShape{ }
 	{
@@ -96,7 +96,7 @@ struct CollisionComponent : public Component
 		}
 	}
 
-	CollisionObjectType collisionObjectType;
+	CollisionType collisionType;
 	CollisionShapeType collisionShapeType;
 	CollisionShape collisionShape;
 };
