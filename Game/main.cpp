@@ -6,7 +6,7 @@
 #include <Node/KinematicBody2D.hpp>
 #include <Node/StaticBody2D.hpp>
 
-#include <Utility/Math.hpp>
+#include <Utility/Helpers.hpp>
 
 class Player : public KinematicBody2D
 {
@@ -21,7 +21,6 @@ public:
 	{
 		if (event.type == InputEvent::EventType::MouseButtonReleased)
 		{
-			printf("sdf\n");
 		}
 	}
 
@@ -46,13 +45,13 @@ public:
 			input.y += 1.f;
 		}
 
-		if (!areEqualApprox(input, sf::Vector2f(0.f, 0.f)))
-			translateDeferred(normalized(input) * _speed * delta);
+		if (!VectorHelper::areEqualApprox(input, {}))
+			translateDeferred(VectorHelper::normalized(input) * _speed * delta);
 	}
 private:
 	std::shared_ptr<Sprite> _sprite;
 
-	float _speed = 200;
+	float _speed = 500;
 };
 
 class Obstacle : public StaticBody2D
@@ -60,7 +59,7 @@ class Obstacle : public StaticBody2D
 public:
 	Obstacle(const sf::Vector2f& position, const sf::Vector2f& dimensions) : StaticBody2D(position, dimensions)
 	{
-		_sprite.reset(new Sprite(sf::Color::White, position, dimensions));
+		_sprite = std::make_shared<Sprite>(sf::Color::White, position, dimensions);
 		addChild(_sprite);
 	}
 private:
@@ -74,17 +73,15 @@ int main()
 
 	auto root = std::make_shared<Node2D>();
 
-	using nodePtr = std::shared_ptr<Node2D>;
-
-	std::vector<nodePtr> children =
+	std::vector<std::shared_ptr<Node2D>> children =
 	{
-		nodePtr(new Obstacle({center.x * 0.5f, center.y}, {100, 100})),
-		nodePtr(new Obstacle(center, {100, 100})),
-		nodePtr(new Obstacle({center.x * 1.5f, center.y}, {100, 100})),
+		std::make_shared<Obstacle>(sf::Vector2f(center.x * 0.5f, center.y), sf::Vector2f(100, 100)),
+		std::make_shared<Obstacle>(center, sf::Vector2f(100, 100)),
+		std::make_shared<Obstacle>(sf::Vector2f(center.x * 1.5f, center.y), sf::Vector2f(100, 100))
 	};
 
 	root->addChildren(children);
-	root->addChild(nodePtr(new Player()));
+	root->addChild(std::make_shared<Player>());
 
 	CORE_LOOP(windowSize, "TDS", root);
 

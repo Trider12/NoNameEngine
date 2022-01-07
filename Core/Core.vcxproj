@@ -103,7 +103,7 @@
     <ClInclude Include="include\Core\Keyboard.hpp" />
     <ClInclude Include="include\Core\Debug.hpp" />
     <ClInclude Include="include\Node\Sprite.hpp" />
-    <ClInclude Include="include\Utility\Math.hpp" />
+    <ClInclude Include="include\Utility\Helpers.hpp" />
     <ClInclude Include="include\Node\KinematicBody2D.hpp" />
     <ClInclude Include="src\Component\Component.hpp" />
     <ClInclude Include="src\Component\ComponentArray.hpp" />
