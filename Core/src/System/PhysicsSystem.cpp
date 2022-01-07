@@ -1,12 +1,13 @@
 #include "System/PhysicsSystem.hpp"
 #include "System/SystemManager.hpp"
 #include "Core/Debug.hpp"
+#include "Utility/Helpers.hpp"
 
 namespace
 {
 	const uint8_t initialNumberOfComponents = 32;
 
-	void preventAABBCollision(CollisionComponent& c1, CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2);
+	void preventCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2);
 }
 
 PhysicsSystem::PhysicsSystem(SystemManager& manager)
@@ -30,10 +31,7 @@ void PhysicsSystem::update(float delta)
 			auto& c2 = _collisionComponents[j];
 			auto& t2 = _transformComponents[_collisionComponents.getNodeId(j)];
 
-			if (c1.collisionShapeType == CollisionComponent::CollisionShapeType::AABB && c2.collisionShapeType == CollisionComponent::CollisionShapeType::AABB)
-			{
-				preventAABBCollision(c1, c2, t1, t2);
-			}
+			preventCollision(c1, c2, t1, t2);
 		}
 	}
 
@@ -53,13 +51,40 @@ void PhysicsSystem::transformDeferred(const Node2D& node, sf::Transform transfor
 
 namespace
 {
-	void preventAABBCollision(CollisionComponent& c1, CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
+	bool rectsAreNotOverlapping(const sf::FloatRect& rect1, const sf::FloatRect& rect2)
+	{
+		return rect1.left > rect2.left + rect2.width || rect2.left > rect1.left + rect1.width ||
+			rect1.top > rect2.top + rect2.height || rect2.top > rect1.top + rect1.height;
+	}
+
+	bool pureStaticCheck(const CollisionComponent& c1, const CollisionComponent& c2)
+	{
+		if (c1.collisionType == CollisionComponent::CollisionType::Static && c2.collisionType == CollisionComponent::CollisionType::Static)
+		{
+			Debug::Warning("pure static collisions ignored!");
+			return true;
+		}
+
+		return false;
+	}
+
+	bool pureKinematicCheck(const CollisionComponent& c1, const CollisionComponent& c2)
+	{
+		if (c1.collisionType == CollisionComponent::CollisionType::Kinematic && c2.collisionType == CollisionComponent::CollisionType::Kinematic)
+		{
+			Debug::Warning("pure kinematic collisions ignored!");
+			return true;
+		}
+
+		return false;
+	}
+
+	void preventAABBxAABBCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
 	{
 		auto rect1 = (t1.globalTransform * t1.deferredTransform).transformRect(c1.collisionShape.rect);
 		auto rect2 = (t2.globalTransform * t2.deferredTransform).transformRect(c2.collisionShape.rect);
 
-		if (rect1.left > rect2.left + rect2.width || rect2.left > rect1.left + rect1.width ||
-			rect1.top > rect2.top + rect2.height || rect2.top > rect1.top + rect1.height)
+		if (rectsAreNotOverlapping(rect1, rect2))
 		{
 			return;
 		}
@@ -74,15 +99,8 @@ namespace
 			return;
 		}
 
-		if (c1.collisionType == CollisionComponent::CollisionType::Static && c2.collisionType == CollisionComponent::CollisionType::Static)
+		if (pureStaticCheck(c1, c2) || pureKinematicCheck(c1, c2))
 		{
-			Debug::Warning("pure static collisions ignored!");
-			return;
-		}
-
-		if (c1.collisionType == CollisionComponent::CollisionType::Kinematic && c2.collisionType == CollisionComponent::CollisionType::Kinematic)
-		{
-			Debug::Error("pure kinematic collisions ignored!");
 			return;
 		}
 
@@ -101,6 +119,80 @@ namespace
 		{
 			fixTransform.translate(-translation);
 			t2.deferredTransform *= fixTransform;
+		}
+	}
+
+	void preventCirclexCircleCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
+	{
+		auto center1 = (t1.globalTransform * t1.deferredTransform).transformPoint(c1.collisionShape.center);
+		auto center2 = (t2.globalTransform * t2.deferredTransform).transformPoint(c2.collisionShape.center);
+		auto radius1 = c1.collisionShape.radius;
+		auto radius2 = c2.collisionShape.radius;
+
+		if (rectsAreNotOverlapping({ center1.x - radius1, center1.y - radius1, radius1 * 2.f, radius1 * 2.f }, { center2.x - radius2, center2.y - radius2, radius2 * 2.f, radius2 * 2.f }))
+		{
+			return;
+		}
+
+		auto direction = center1 - center2;
+		auto distSqr = VectorHelper::lengthSqr(direction);
+
+		if (distSqr - std::powf(radius1 + radius2, 2.f) >= 0.f)
+		{
+			return;
+		}
+
+		if (pureStaticCheck(c1, c2) || pureKinematicCheck(c1, c2))
+		{
+			return;
+		}
+
+		auto translation = (radius1 + radius2 - std::sqrtf(distSqr)) * VectorHelper::normalized(direction);
+		auto fixTransform = sf::Transform::Identity;
+
+		if (c1.collisionType == CollisionComponent::CollisionType::Kinematic)
+		{
+			fixTransform.translate(translation);
+			t1.deferredTransform *= fixTransform;
+		}
+		else
+		{
+			fixTransform.translate(-translation);
+			t2.deferredTransform *= fixTransform;
+		}
+	}
+
+	void preventAABBxCircleCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
+	{
+		// TODO
+	}
+
+	void preventCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
+	{
+		if (c1.collisionShapeType == CollisionComponent::CollisionShapeType::AABB)
+		{
+			if (c2.collisionShapeType == CollisionComponent::CollisionShapeType::AABB)
+			{
+				preventAABBxAABBCollision(c1, c2, t1, t2);
+			}
+
+			if (c2.collisionShapeType == CollisionComponent::CollisionShapeType::Circle)
+			{
+				preventAABBxCircleCollision(c1, c2, t1, t2);
+			}
+		}
+
+		if (c1.collisionShapeType == CollisionComponent::CollisionShapeType::Circle)
+		{
+			if (c2.collisionShapeType == CollisionComponent::CollisionShapeType::Circle)
+			{
+				preventCirclexCircleCollision(c1, c2, t1, t2);
+			}
+
+			if (c2.collisionShapeType == CollisionComponent::CollisionShapeType::AABB)
+			{
+				preventAABBxCircleCollision(c2, c1, t2, t1);
+			}
 		}
 	}
 }

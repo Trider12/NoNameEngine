@@ -6,16 +6,24 @@ namespace
 	auto& systemManager = Locator::getInstance().getSystemManager();
 }
 
-KinematicBody2D::KinematicBody2D() : Node2D(), _dimensions{ sf::Vector2f(100.f, 100.f) }
+KinematicBody2D::KinematicBody2D() : Node2D()
 {
 	auto component = CollisionComponent(CollisionComponent::CollisionType::Kinematic, CollisionComponent::CollisionShapeType::AABB);
-	component.collisionShape.rect = sf::FloatRect({}, _dimensions);
+	component.collisionShape.rect = sf::FloatRect({}, { 100.f, 100.f });
 	systemManager.addComponent<CollisionComponent>(*this, component);
 }
 
-KinematicBody2D::KinematicBody2D(const sf::Vector2f& position, const sf::Vector2f& dimensions) : Node2D(position), _dimensions{ dimensions }
+KinematicBody2D::KinematicBody2D(const sf::Vector2f& position, const sf::Vector2f& dimensions) : Node2D(position)
 {
 	auto component = CollisionComponent(CollisionComponent::CollisionType::Kinematic, CollisionComponent::CollisionShapeType::AABB);
-	component.collisionShape.rect = sf::FloatRect({}, _dimensions);
+	component.collisionShape.rect = sf::FloatRect({}, dimensions);
+	systemManager.addComponent<CollisionComponent>(*this, component);
+}
+
+KinematicBody2D::KinematicBody2D(const sf::Vector2f& position, float radius) : Node2D(position)
+{
+	auto component = CollisionComponent(CollisionComponent::CollisionType::Kinematic, CollisionComponent::CollisionShapeType::Circle);
+	component.collisionShape.center = {};
+	component.collisionShape.radius = radius;
 	systemManager.addComponent<CollisionComponent>(*this, component);
 }
