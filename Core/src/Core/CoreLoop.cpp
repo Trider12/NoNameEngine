@@ -1,11 +1,7 @@
 #include "Core/CoreLoop.hpp"
 #include "Core/Locator.hpp"
 #include "Core/InputEvent.hpp"
-
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif // _WIN32
+#include "Core/Debug.hpp"
 
 #include <imconfig-SFML.h>
 #include <imgui-SFML.h>
@@ -23,13 +19,8 @@ namespace
 
 CoreLoop::CoreLoop(const sf::Vector2u& windowSize, const std::string& windowTitle, std::shared_ptr<Node2D> root) : _isRunning{ true }
 {
-#ifdef _WIN32
-#ifdef _DEBUG
-	::ShowWindow(::GetConsoleWindow(), SW_SHOW);
-#else
-	::ShowWindow(::GetConsoleWindow(), SW_HIDE);
-#endif // _DEBUG
-#endif // _WIN32
+	Debug::SwitchConsole();
+
 	_window.create(sf::VideoMode(windowSize.x, windowSize.y), windowTitle, sf::Style::Titlebar | sf::Style::Close);
 	_window.setVerticalSyncEnabled(true);
 	_window.setActive(false);

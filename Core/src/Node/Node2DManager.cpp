@@ -1,5 +1,6 @@
 #include "Node/Node2DManager.hpp"
 #include "Node/Node2D.hpp"
+#include "Core/Debug.hpp"
 
 #include <queue>
 #include <cassert>
@@ -44,7 +45,7 @@ void Node2DManager::setRoot(std::shared_ptr<Node2D> root)
 {
 	if (_root)
 	{
-		fprintf(stderr, "Warning: replacing existing root %llu with %llu (old root discarded)!\n", _root->_id, root->_id);
+		Debug::Warning("replacing existing root %llu with %llu (old root discarded)!", _root->_id, root->_id);
 	}
 
 	_root = root;

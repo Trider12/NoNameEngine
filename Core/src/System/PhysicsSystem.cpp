@@ -1,5 +1,6 @@
 #include "System/PhysicsSystem.hpp"
 #include "System/SystemManager.hpp"
+#include "Core/Debug.hpp"
 
 namespace
 {
@@ -75,17 +76,13 @@ namespace
 
 		if (c1.collisionType == CollisionComponent::CollisionType::Static && c2.collisionType == CollisionComponent::CollisionType::Static)
 		{
-#ifdef _DEBUG
-			fprintf(stderr, "Warning: pure static collisions ignored!\n");
-#endif // _DEBUG
+			Debug::Warning("pure static collisions ignored!");
 			return;
 		}
 
 		if (c1.collisionType == CollisionComponent::CollisionType::Kinematic && c2.collisionType == CollisionComponent::CollisionType::Kinematic)
 		{
-#ifdef _DEBUG
-			fprintf(stderr, "Warning: pure kinematic collisions ignored!\n");
-#endif // _DEBUG
+			Debug::Error("pure kinematic collisions ignored!");
 			return;
 		}
 

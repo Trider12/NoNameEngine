@@ -101,6 +101,7 @@
   <ItemGroup>
     <ClInclude Include="include\Core\InputEvent.hpp" />
     <ClInclude Include="include\Core\Keyboard.hpp" />
+    <ClInclude Include="include\Core\Debug.hpp" />
     <ClInclude Include="include\Node\Sprite.hpp" />
     <ClInclude Include="include\Utility\Math.hpp" />
     <ClInclude Include="include\Node\KinematicBody2D.hpp" />
