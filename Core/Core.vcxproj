@@ -89,7 +89,7 @@
   <ItemGroup>
     <ClCompile Include="src\Node\KinematicBody2D.cpp" />
     <ClCompile Include="src\Core\Keyboard.cpp" />
-    <ClCompile Include="src\Node\Sprite.cpp" />
+    <ClCompile Include="src\Node\Primitive2D.cpp" />
     <ClCompile Include="src\Core\CoreLoop.cpp" />
     <ClCompile Include="src\System\RenderSystem.cpp" />
     <ClCompile Include="src\Core\Locator.cpp" />
@@ -102,7 +102,7 @@
     <ClInclude Include="include\Core\InputEvent.hpp" />
     <ClInclude Include="include\Core\Keyboard.hpp" />
     <ClInclude Include="include\Core\Debug.hpp" />
-    <ClInclude Include="include\Node\Sprite.hpp" />
+    <ClInclude Include="include\Node\Primitive2D.hpp" />
     <ClInclude Include="include\Utility\Helpers.hpp" />
     <ClInclude Include="include\Node\KinematicBody2D.hpp" />
     <ClInclude Include="src\Component\Component.hpp" />

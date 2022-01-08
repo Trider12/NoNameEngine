@@ -3,7 +3,7 @@
 #include "System/System.hpp"
 #include "Component/Component.hpp"
 #include "Component/ComponentArray.hpp"
-#include "Node/Sprite.hpp"
+#include "Node/Primitive2D.hpp"
 
 namespace sf
 {

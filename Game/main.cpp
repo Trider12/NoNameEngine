@@ -2,7 +2,7 @@
 #include <Core/InputEvent.hpp>
 #include <Core/Keyboard.hpp>
 
-#include <Node/Sprite.hpp>
+#include <Node/Primitive2D.hpp>
 #include <Node/KinematicBody2D.hpp>
 #include <Node/StaticBody2D.hpp>
 
@@ -13,13 +13,13 @@ class Player : public KinematicBody2D
 public:
 	Player(const sf::Vector2f& position, const sf::Vector2f& dimensions) : KinematicBody2D(position, dimensions)
 	{
-		_sprite.reset(new Sprite(sf::Color::Blue, position, dimensions));
+		_sprite.reset(new Primitive2D(sf::Color::Blue, position, dimensions));
 		addChild(_sprite);
 	}
 
 	Player(const sf::Vector2f& position, float radius) : KinematicBody2D(position, radius)
 	{
-		_sprite.reset(new Sprite(sf::Color::Blue, position, { radius * 2.f, radius * 2.f }));
+		_sprite.reset(new Primitive2D(sf::Color::Blue, position, radius));
 		addChild(_sprite);
 	}
 
@@ -55,7 +55,7 @@ public:
 			translateDeferred(VectorHelper::normalized(input) * _speed * delta);
 	}
 private:
-	std::shared_ptr<Sprite> _sprite;
+	std::shared_ptr<Primitive2D> _sprite;
 
 	float _speed = 500;
 };
@@ -65,17 +65,17 @@ class Obstacle : public StaticBody2D
 public:
 	Obstacle(const sf::Vector2f& position, const sf::Vector2f& dimensions) : StaticBody2D(position, dimensions)
 	{
-		_sprite = std::make_shared<Sprite>(sf::Color::White, position, dimensions);
+		_sprite = std::make_shared<Primitive2D>(sf::Color::White, position, dimensions);
 		addChild(_sprite);
 	}
 
 	Obstacle(const sf::Vector2f& position, float radius) : StaticBody2D(position, radius)
 	{
-		_sprite.reset(new Sprite(sf::Color::White, position, { radius * 2.f, radius * 2.f }));
+		_sprite.reset(new Primitive2D(sf::Color::White, position, radius));
 		addChild(_sprite);
 	}
 private:
-	std::shared_ptr<Sprite> _sprite;
+	std::shared_ptr<Primitive2D> _sprite;
 };
 
 int main()
