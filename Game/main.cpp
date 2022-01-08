@@ -11,9 +11,15 @@
 class Player : public KinematicBody2D
 {
 public:
-	Player(const sf::Vector2f& center, float radius) : KinematicBody2D(center, radius)
+	Player(const sf::Vector2f& position, const sf::Vector2f& dimensions) : KinematicBody2D(position, dimensions)
 	{
-		_sprite.reset(new Sprite(sf::Color::Blue, center, { radius * 2.f, radius * 2.f }));
+		_sprite.reset(new Sprite(sf::Color::Blue, position, dimensions));
+		addChild(_sprite);
+	}
+
+	Player(const sf::Vector2f& position, float radius) : KinematicBody2D(position, radius)
+	{
+		_sprite.reset(new Sprite(sf::Color::Blue, position, { radius * 2.f, radius * 2.f }));
 		addChild(_sprite);
 	}
 
@@ -63,9 +69,9 @@ public:
 		addChild(_sprite);
 	}
 
-	Obstacle(const sf::Vector2f& center, float radius) : StaticBody2D(center, radius)
+	Obstacle(const sf::Vector2f& position, float radius) : StaticBody2D(position, radius)
 	{
-		_sprite.reset(new Sprite(sf::Color::White, center, { radius * 2.f, radius * 2.f }));
+		_sprite.reset(new Sprite(sf::Color::White, position, { radius * 2.f, radius * 2.f }));
 		addChild(_sprite);
 	}
 private:
@@ -81,13 +87,14 @@ int main()
 
 	std::vector<std::shared_ptr<Node2D>> children =
 	{
-		std::make_shared<Obstacle>(sf::Vector2f(center.x * 0.5f, center.y), sf::Vector2f(100, 100)),
-		std::make_shared<Obstacle>(center, 50),
-		std::make_shared<Obstacle>(sf::Vector2f(center.x * 1.5f, center.y), sf::Vector2f(100, 100))
+		std::make_shared<Obstacle>(sf::Vector2f(center.x * 0.5f, center.y), sf::Vector2f(100.f, 100.f)),
+		std::make_shared<Obstacle>(center, 50.f),
+		std::make_shared<Obstacle>(sf::Vector2f(center.x * 1.5f, center.y), sf::Vector2f(100.f, 100.f))
 	};
 
 	root->addChildren(children);
-	root->addChild(std::make_shared<Player>(sf::Vector2f(), 50));
+	//root->addChild(std::make_shared<Player>(sf::Vector2f(), sf::Vector2f(100.f, 100.f)));
+	root->addChild(std::make_shared<Player>(sf::Vector2f(), 50.f));
 
 	CORE_LOOP(windowSize, "TDS", root);
 

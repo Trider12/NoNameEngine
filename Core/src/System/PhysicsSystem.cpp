@@ -1,7 +1,7 @@
 #include "System/PhysicsSystem.hpp"
 #include "System/SystemManager.hpp"
-#include "Core/Debug.hpp"
 #include "Utility/Helpers.hpp"
+#include "Core/Debug.hpp"
 
 namespace
 {
@@ -79,6 +79,22 @@ namespace
 		return false;
 	}
 
+	void applyCollisionResolvingTranslationToKinematicBody(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2, const sf::Vector2f& translation)
+	{
+		auto resolvingTransform = sf::Transform::Identity;
+
+		if (c1.collisionType == CollisionComponent::CollisionType::Kinematic)
+		{
+			resolvingTransform.translate(translation);
+			t1.deferredTransform *= resolvingTransform;
+		}
+		else
+		{
+			resolvingTransform.translate(-translation);
+			t2.deferredTransform *= resolvingTransform;
+		}
+	}
+
 	void preventAABBxAABBCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
 	{
 		auto rect1 = (t1.globalTransform * t1.deferredTransform).transformRect(c1.collisionShape.rect);
@@ -94,12 +110,7 @@ namespace
 		auto minDx = rect1.width / 2 + rect2.width / 2;
 		auto minDy = rect1.height / 2 + rect2.height / 2;
 
-		if (std::fabsf(dx) >= minDx || std::fabsf(dy) >= minDy)
-		{
-			return;
-		}
-
-		if (pureStaticCheck(c1, c2) || pureKinematicCheck(c1, c2))
+		if (std::fabsf(dx) >= minDx || std::fabsf(dy) >= minDy || pureStaticCheck(c1, c2) || pureKinematicCheck(c1, c2))
 		{
 			return;
 		}
@@ -108,18 +119,8 @@ namespace
 		auto depthY = std::copysignf(minDy, dy) - dy;
 
 		auto translation = std::fabsf(depthX) <= std::fabsf(depthY) ? sf::Vector2f(depthX, 0.f) : sf::Vector2f(0.f, depthY);
-		auto fixTransform = sf::Transform::Identity;
 
-		if (c1.collisionType == CollisionComponent::CollisionType::Kinematic)
-		{
-			fixTransform.translate(translation);
-			t1.deferredTransform *= fixTransform;
-		}
-		else
-		{
-			fixTransform.translate(-translation);
-			t2.deferredTransform *= fixTransform;
-		}
+		applyCollisionResolvingTranslationToKinematicBody(c1, c2, t1, t2, translation);
 	}
 
 	void preventCirclexCircleCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
@@ -134,37 +135,55 @@ namespace
 			return;
 		}
 
-		auto direction = center1 - center2;
-		auto distSqr = VectorHelper::lengthSqr(direction);
+		auto deltaCenter = center1 - center2;
+		auto distSqr = VectorHelper::lengthSqr(deltaCenter);
 
-		if (distSqr - std::powf(radius1 + radius2, 2.f) >= 0.f)
+		if (distSqr - std::powf(radius1 + radius2, 2.f) >= 0.f || pureStaticCheck(c1, c2) || pureKinematicCheck(c1, c2))
 		{
 			return;
 		}
 
-		if (pureStaticCheck(c1, c2) || pureKinematicCheck(c1, c2))
-		{
-			return;
-		}
+		auto translation = (radius1 + radius2 - std::sqrtf(distSqr)) * VectorHelper::normalized(deltaCenter);
 
-		auto translation = (radius1 + radius2 - std::sqrtf(distSqr)) * VectorHelper::normalized(direction);
-		auto fixTransform = sf::Transform::Identity;
-
-		if (c1.collisionType == CollisionComponent::CollisionType::Kinematic)
-		{
-			fixTransform.translate(translation);
-			t1.deferredTransform *= fixTransform;
-		}
-		else
-		{
-			fixTransform.translate(-translation);
-			t2.deferredTransform *= fixTransform;
-		}
+		applyCollisionResolvingTranslationToKinematicBody(c1, c2, t1, t2, translation);
 	}
 
 	void preventAABBxCircleCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
 	{
-		// TODO
+		auto rect = (t1.globalTransform * t1.deferredTransform).transformRect(c1.collisionShape.rect);
+		auto circleCenter = (t2.globalTransform * t2.deferredTransform).transformPoint(c2.collisionShape.center);
+		auto circleRadius = c2.collisionShape.radius;
+		auto circleRect = sf::FloatRect(circleCenter.x - circleRadius, circleCenter.y - circleRadius, circleRadius * 2.f, circleRadius * 2.f);
+
+		if (rectsAreNotOverlapping(rect, circleRect))
+		{
+			return;
+		}
+
+		auto halfDims = sf::Vector2f(rect.width / 2.f, rect.height / 2.f);
+		auto rectCenter = sf::Vector2f(rect.left + halfDims.x, rect.top + halfDims.y);
+		auto radialDirection = VectorHelper::normalized(rectCenter - circleCenter);
+		auto circumferencePoint = circleCenter + circleRadius * radialDirection;
+
+		if (!rect.contains(circumferencePoint) || pureStaticCheck(c1, c2) || pureKinematicCheck(c1, c2))
+		{
+			return;
+		}
+
+		auto diagonalTangent = rect.height / rect.width;
+		auto tangent = std::fabsf(radialDirection.y / radialDirection.x);
+
+		auto quadrantSignX = std::copysignf(1.f, -radialDirection.x);
+		auto quadrantSignY = std::copysignf(1.f, -radialDirection.y);
+
+		auto rectIntersectionPoint =
+			tangent > diagonalTangent ?
+			sf::Vector2f(rectCenter.x + halfDims.y / tangent * quadrantSignX, rectCenter.y + halfDims.y * quadrantSignY) :
+			sf::Vector2f(rectCenter.x + halfDims.x * quadrantSignX, rectCenter.y + halfDims.x * tangent * quadrantSignY);
+
+		auto translation = circumferencePoint - rectIntersectionPoint;
+
+		applyCollisionResolvingTranslationToKinematicBody(c1, c2, t1, t2, translation);
 	}
 
 	void preventCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
