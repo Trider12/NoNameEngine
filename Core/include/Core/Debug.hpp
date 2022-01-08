@@ -30,7 +30,7 @@ public:
 	static void SwitchConsole()
 	{
 #ifdef _WIN32
-#ifdef DEBUG
+#if DEBUG
 		::ShowWindow(::GetConsoleWindow(), SW_SHOW);
 #else
 		::ShowWindow(::GetConsoleWindow(), SW_HIDE);
