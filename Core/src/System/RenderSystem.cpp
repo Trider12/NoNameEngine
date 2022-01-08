@@ -37,7 +37,7 @@ void RenderSystem::update(float delta)
 
 			primitive.transform = newTransform;
 			primitive.dirty = true;
-			_triangleVertexBufferDirty = true;
+			_triangleVertexBufferNeedsUpdating = true;
 		}
 
 		_transformsDirty = false;
@@ -48,7 +48,7 @@ void RenderSystem::update(float delta)
 		resetBuffer();
 	}
 
-	if (_triangleVertexBufferDirty)
+	if (_triangleVertexBufferNeedsUpdating)
 	{
 		for (uint64_t i = 0; i < _trianglePrimitiveComponents.activeCount(); ++i)
 		{
@@ -64,7 +64,7 @@ void RenderSystem::update(float delta)
 			primitive.dirty = false;
 		}
 
-		_triangleVertexBufferDirty = false;
+		_triangleVertexBufferNeedsUpdating = false;
 	}
 
 	_renderTarget->draw(*_triangleVertexBuffer, 0, _activeTriangleVerticesCount);
@@ -79,6 +79,7 @@ void RenderSystem::init(sf::RenderTarget& target)
 
 void RenderSystem::cleanup()
 {
+	_triangleVertexBuffer->create(0);
 	delete _triangleVertexBuffer;
 }
 
@@ -114,7 +115,7 @@ void RenderSystem::resetBuffer()
 	_activeTriangleVerticesCount = vertices.size();
 
 	_triangleVertexBufferNeedsResetting = false;
-	_triangleVertexBufferDirty = false;
+	_triangleVertexBufferNeedsUpdating = false;
 }
 
 void RenderSystem::reallocateVertexBufferIfNeeded()
@@ -123,7 +124,7 @@ void RenderSystem::reallocateVertexBufferIfNeeded()
 
 	auto newCapacity =
 		ratio > vertexBufferCapacityUpperThreshold || ratio < vertexBufferCapacityLowerThreshold ?
-		unsigned(_triangleVertexBuffer->getVertexCount() / vertexBufferCapacityUpperThreshold) : 0;
+		unsigned(_activeTriangleVerticesCount / vertexBufferCapacityUpperThreshold) : 0;
 
 	if (newCapacity == 0)
 	{

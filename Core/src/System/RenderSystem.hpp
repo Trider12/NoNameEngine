@@ -41,7 +41,7 @@ private:
 	sf::VertexBuffer* _triangleVertexBuffer = nullptr;
 
 	uint64_t _activeTriangleVerticesCount = 0;
-	bool _triangleVertexBufferDirty = false;
+	bool _triangleVertexBufferNeedsUpdating = false;
 	bool _triangleVertexBufferNeedsResetting = false;
 	bool _transformsDirty = true;
 
