@@ -17,7 +17,7 @@ struct TransformComponent : public Component
 	sf::Transform deferredTransform;
 };
 
-struct TrianglePrimitiveComponent : public Component
+struct TriangulatedPrimitiveComponent : public Component
 {
 	sf::Vector2f* trianglePoints = nullptr;
 	sf::Color color = sf::Color::White;

@@ -14,7 +14,7 @@ namespace
 
 RenderSystem::RenderSystem(SystemManager& manager)
 	: System(manager)
-	, _trianglePrimitiveComponents{ ComponentArray<TrianglePrimitiveComponent>(initialNumberOfComponents) }
+	, _trianglePrimitiveComponents{ ComponentArray<TriangulatedPrimitiveComponent>(initialNumberOfComponents) }
 {
 }
 
@@ -142,7 +142,7 @@ void RenderSystem::reallocateVertexBufferIfNeeded()
 	_triangleVertexBuffer = newBuffer;
 }
 
-void RenderSystem::updatePrimitiveVertexBufferData(const TrianglePrimitiveComponent& primitive)
+void RenderSystem::updatePrimitiveVertexBufferData(const TriangulatedPrimitiveComponent& primitive)
 {
 	std::vector<sf::Vertex> vertices;
 	vertices.reserve(primitive.trianglePointsCount);

@@ -9,31 +9,31 @@ namespace
 {
 	auto& systemManager = Locator::getInstance().getSystemManager();
 
-	TrianglePrimitiveComponent createRectComponent(sf::Color color, const sf::Vector2f& dimensions);
-	TrianglePrimitiveComponent createCircleComponent(sf::Color color, float radius, unsigned numberOfPoints);
+	TriangulatedPrimitiveComponent createRectComponent(sf::Color color, const sf::Vector2f& dimensions);
+	TriangulatedPrimitiveComponent createCircleComponent(sf::Color color, float radius, unsigned numberOfPoints);
 }
 
 Primitive2D::Primitive2D()
 	: Node2D(), _color{ sf::Color::White }
 {
-	systemManager.addComponent<TrianglePrimitiveComponent>(*this, createRectComponent(_color, { 100.f, 100.f }));
+	systemManager.addComponent<TriangulatedPrimitiveComponent>(*this, createRectComponent(_color, { 100.f, 100.f }));
 }
 
 Primitive2D::Primitive2D(const sf::Color& color, const sf::Vector2f& position, const sf::Vector2f& dimensions)
 	: Node2D(position), _color{ color }
 {
-	systemManager.addComponent<TrianglePrimitiveComponent>(*this, createRectComponent(_color, dimensions));
+	systemManager.addComponent<TriangulatedPrimitiveComponent>(*this, createRectComponent(_color, dimensions));
 }
 
 Primitive2D::Primitive2D(const sf::Color& color, const sf::Vector2f& position, float radius, unsigned numberOfPoints)
 	: Node2D(position), _color{ color }
 {
-	systemManager.addComponent<TrianglePrimitiveComponent>(*this, createCircleComponent(_color, radius, numberOfPoints));
+	systemManager.addComponent<TriangulatedPrimitiveComponent>(*this, createCircleComponent(_color, radius, numberOfPoints));
 }
 
 Primitive2D::~Primitive2D()
 {
-	systemManager.removeComponent<TrianglePrimitiveComponent>(*this);
+	systemManager.removeComponent<TriangulatedPrimitiveComponent>(*this);
 }
 
 const sf::Color& Primitive2D::getColor() const
@@ -43,9 +43,9 @@ const sf::Color& Primitive2D::getColor() const
 
 namespace
 {
-	TrianglePrimitiveComponent createRectComponent(sf::Color color, const sf::Vector2f& dimensions)
+	TriangulatedPrimitiveComponent createRectComponent(sf::Color color, const sf::Vector2f& dimensions)
 	{
-		TrianglePrimitiveComponent component;
+		TriangulatedPrimitiveComponent component;
 		component.color = color;
 
 		auto halfDims = dimensions * 0.5f;
@@ -72,9 +72,9 @@ namespace
 		return component;
 	}
 
-	TrianglePrimitiveComponent createCircleComponent(sf::Color color, float radius, unsigned numberOfPoints)
+	TriangulatedPrimitiveComponent createCircleComponent(sf::Color color, float radius, unsigned numberOfPoints)
 	{
-		TrianglePrimitiveComponent component;
+		TriangulatedPrimitiveComponent component;
 		component.color = color;
 
 		const auto twoPi = std::numbers::pi_v<float> *2.f;

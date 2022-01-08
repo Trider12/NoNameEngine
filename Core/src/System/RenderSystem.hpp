@@ -33,11 +33,11 @@ private:
 
 	void resetBuffer();
 	void reallocateVertexBufferIfNeeded();
-	void updatePrimitiveVertexBufferData(const TrianglePrimitiveComponent& primitive);
+	void updatePrimitiveVertexBufferData(const TriangulatedPrimitiveComponent& primitive);
 
 	sf::RenderTarget* _renderTarget = nullptr;
 
-	ComponentArray<TrianglePrimitiveComponent> _trianglePrimitiveComponents;
+	ComponentArray<TriangulatedPrimitiveComponent> _trianglePrimitiveComponents;
 	sf::VertexBuffer* _triangleVertexBuffer = nullptr;
 
 	uint64_t _activeTriangleVerticesCount = 0;
@@ -51,7 +51,7 @@ private:
 template <DerivedComponent T>
 void RenderSystem::addComponent(const Node2D& node, T component)
 {
-	if constexpr (std::is_same_v<T, TrianglePrimitiveComponent>)
+	if constexpr (std::is_same_v<T, TriangulatedPrimitiveComponent>)
 	{
 		if (_renderTarget != nullptr)
 		{
@@ -73,7 +73,7 @@ void RenderSystem::addComponent(const Node2D& node, T component)
 template <DerivedComponent T>
 void RenderSystem::removeComponent(const Node2D& node)
 {
-	if constexpr (std::is_same_v<T, TrianglePrimitiveComponent>)
+	if constexpr (std::is_same_v<T, TriangulatedPrimitiveComponent>)
 	{
 		auto& component = _trianglePrimitiveComponents.getComponent(node.getId()); // TODO: improve this
 		delete[] component.trianglePoints;

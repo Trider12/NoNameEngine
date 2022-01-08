@@ -56,7 +56,7 @@ void SystemManager::addComponent(const Node2D& node, T component)
 	{
 		_physicsSystem.addComponent<T>(node, component);
 	}
-	else if constexpr (std::is_same_v<T, TrianglePrimitiveComponent>)
+	else if constexpr (std::is_same_v<T, TriangulatedPrimitiveComponent>)
 	{
 		_renderSystem.addComponent<T>(node, component);
 	}
@@ -73,7 +73,7 @@ void SystemManager::removeComponent(const Node2D& node)
 	{
 		_physicsSystem.removeComponent<T>(node);
 	}
-	else if constexpr (std::is_same_v<T, TrianglePrimitiveComponent>)
+	else if constexpr (std::is_same_v<T, TriangulatedPrimitiveComponent>)
 	{
 		_renderSystem.removeComponent<T>(node);
 	}
