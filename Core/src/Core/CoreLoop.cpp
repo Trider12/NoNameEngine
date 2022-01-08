@@ -25,9 +25,10 @@ CoreLoop::CoreLoop(const sf::Vector2u& windowSize, const std::string& windowTitl
 	_window.setVerticalSyncEnabled(true);
 	_window.setActive(false);
 
-	systemManager.setRenderTarget(_window);
 	nodeManager.setRoot(root);
 	nodeManager.ready();
+
+	systemManager.getSystem<RenderSystem>().init(_window);
 
 	ImGui::SFML::Init(_window);
 	ImGui::GetIO().IniFilename = nullptr;
@@ -40,6 +41,8 @@ CoreLoop::~CoreLoop()
 {
 	_aiThread.join();
 	_renderThread.join();
+
+	systemManager.getSystem<RenderSystem>().cleanup();
 
 	_window.close();
 	ImGui::SFML::Shutdown();

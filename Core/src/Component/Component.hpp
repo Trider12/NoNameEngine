@@ -17,12 +17,14 @@ struct TransformComponent : public Component
 	sf::Transform deferredTransform;
 };
 
-struct QuadVerticesComponent : public Component
+struct TrianglePrimitiveComponent : public Component
 {
-	QuadVerticesComponent() {}
-	QuadVerticesComponent(const sf::Vertex& v1, const sf::Vertex& v2, const sf::Vertex& v3, const sf::Vertex& v4) : vertices{ v1, v2, v3, v4 } {}
-
-	sf::Vertex vertices[4];
+	sf::Vector2f* trianglePoints = nullptr;
+	sf::Color color = sf::Color::White;
+	sf::Transform transform;
+	bool dirty = false;
+	uint64_t trianglePointsCount = 0u;
+	uint64_t bufferOffset = 0u;
 };
 
 struct CollisionComponent : public Component

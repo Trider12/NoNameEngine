@@ -43,10 +43,6 @@ void SystemManager::addComponent(const Node2D& node)
 	{
 		_physicsSystem.addComponent<T>(node);
 	}
-	else if constexpr (std::is_same_v<T, QuadVerticesComponent>)
-	{
-		_renderSystem.addComponent<T>(node);
-	}
 	else
 	{
 		static_assert(always_false<T>, "No specialization!");
@@ -59,6 +55,10 @@ void SystemManager::addComponent(const Node2D& node, T component)
 	if constexpr (std::is_same_v<T, CollisionComponent>)
 	{
 		_physicsSystem.addComponent<T>(node, component);
+	}
+	else if constexpr (std::is_same_v<T, TrianglePrimitiveComponent>)
+	{
+		_renderSystem.addComponent<T>(node, component);
 	}
 	else
 	{
@@ -73,7 +73,7 @@ void SystemManager::removeComponent(const Node2D& node)
 	{
 		_physicsSystem.removeComponent<T>(node);
 	}
-	else if constexpr (std::is_same_v<T, QuadVerticesComponent>)
+	else if constexpr (std::is_same_v<T, TrianglePrimitiveComponent>)
 	{
 		_renderSystem.removeComponent<T>(node);
 	}

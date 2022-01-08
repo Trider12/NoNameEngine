@@ -8,11 +8,6 @@ class Node2D;
 class SystemManager
 {
 public:
-	void setRenderTarget(sf::RenderTarget& target)
-	{
-		_renderSystem.setRenderTarget(&target);
-	}
-
 	template <DerivedSystem T>
 	T& getSystem();
 
