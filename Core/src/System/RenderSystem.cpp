@@ -14,7 +14,7 @@ namespace
 
 RenderSystem::RenderSystem(SystemManager& manager)
 	: System(manager)
-	, _trianglePrimitiveComponents{ ComponentArray<TriangulatedPrimitiveComponent>(initialNumberOfComponents) }
+	, _triangulatedPrimitiveComponents{ ComponentArray<TriangulatedPrimitiveComponent>(initialNumberOfComponents) }
 {
 }
 
@@ -24,11 +24,11 @@ void RenderSystem::update(float delta)
 	{
 		std::scoped_lock lock(_systemManager.getSystem<PhysicsSystem>().mutex);
 
-		for (uint64_t i = 0; i < _trianglePrimitiveComponents.activeCount(); ++i)
+		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
 		{
-			auto& primitive = _trianglePrimitiveComponents[i];
+			auto& primitive = _triangulatedPrimitiveComponents[i];
 
-			auto newTransform = _systemManager.getComponent<TransformComponent>(_trianglePrimitiveComponents.getNodeId(i)).globalTransform;
+			auto newTransform = _systemManager.getComponent<TransformComponent>(_triangulatedPrimitiveComponents.getNodeId(i)).globalTransform;
 
 			if (primitive.transform == newTransform)
 			{
@@ -37,22 +37,22 @@ void RenderSystem::update(float delta)
 
 			primitive.transform = newTransform;
 			primitive.dirty = true;
-			_triangleVertexBufferNeedsUpdating = true;
+			_primitivesDirty = true;
 		}
 
 		_transformsDirty = false;
 	}
 
-	if (_triangleVertexBufferNeedsResetting)
+	if (_resetVertexBuffer)
 	{
 		resetBuffer();
 	}
 
-	if (_triangleVertexBufferNeedsUpdating)
+	if (_primitivesDirty)
 	{
-		for (uint64_t i = 0; i < _trianglePrimitiveComponents.activeCount(); ++i)
+		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
 		{
-			auto& primitive = _trianglePrimitiveComponents[i];
+			auto& primitive = _triangulatedPrimitiveComponents[i];
 
 			if (!primitive.dirty)
 			{
@@ -64,10 +64,10 @@ void RenderSystem::update(float delta)
 			primitive.dirty = false;
 		}
 
-		_triangleVertexBufferNeedsUpdating = false;
+		_primitivesDirty = false;
 	}
 
-	_renderTarget->draw(*_triangleVertexBuffer, 0, _activeTriangleVerticesCount);
+	_renderTarget->draw(*_triangleVertexBuffer, 0, _activeTrianglesVerticesCount);
 }
 
 void RenderSystem::init(sf::RenderTarget& target)
@@ -92,9 +92,9 @@ void RenderSystem::resetBuffer()
 {
 	std::vector<sf::Vertex> vertices;
 
-	for (uint64_t i = 0; i < _trianglePrimitiveComponents.activeCount(); ++i)
+	for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
 	{
-		auto& primitive = _trianglePrimitiveComponents[i];
+		auto& primitive = _triangulatedPrimitiveComponents[i];
 
 		primitive.bufferOffset = unsigned(vertices.size());
 		primitive.dirty = false;
@@ -112,19 +112,19 @@ void RenderSystem::resetBuffer()
 	}
 
 	_triangleVertexBuffer->update(vertices.data(), vertices.size(), 0);
-	_activeTriangleVerticesCount = vertices.size();
+	_activeTrianglesVerticesCount = vertices.size();
 
-	_triangleVertexBufferNeedsResetting = false;
-	_triangleVertexBufferNeedsUpdating = false;
+	_resetVertexBuffer = false;
+	_primitivesDirty = false;
 }
 
 void RenderSystem::reallocateVertexBufferIfNeeded()
 {
-	auto ratio = _activeTriangleVerticesCount * 1.f / _triangleVertexBuffer->getVertexCount();
+	auto ratio = _activeTrianglesVerticesCount * 1.f / _triangleVertexBuffer->getVertexCount();
 
 	auto newCapacity =
 		ratio > vertexBufferCapacityUpperThreshold || ratio < vertexBufferCapacityLowerThreshold ?
-		unsigned(_activeTriangleVerticesCount / vertexBufferCapacityUpperThreshold) : 0;
+		unsigned(_activeTrianglesVerticesCount / vertexBufferCapacityUpperThreshold) : 0;
 
 	if (newCapacity == 0)
 	{

@@ -37,12 +37,12 @@ private:
 
 	sf::RenderTarget* _renderTarget = nullptr;
 
-	ComponentArray<TriangulatedPrimitiveComponent> _trianglePrimitiveComponents;
+	ComponentArray<TriangulatedPrimitiveComponent> _triangulatedPrimitiveComponents;
 	sf::VertexBuffer* _triangleVertexBuffer = nullptr;
 
-	uint64_t _activeTriangleVerticesCount = 0;
-	bool _triangleVertexBufferNeedsUpdating = false;
-	bool _triangleVertexBufferNeedsResetting = false;
+	uint64_t _activeTrianglesVerticesCount = 0;
+	bool _resetVertexBuffer = false;
+	bool _primitivesDirty = false;
 	bool _transformsDirty = true;
 
 	friend class SystemManager;
@@ -55,14 +55,14 @@ void RenderSystem::addComponent(const Node2D& node, T component)
 	{
 		if (_renderTarget != nullptr)
 		{
-			component.bufferOffset = _activeTriangleVerticesCount;
-			_activeTriangleVerticesCount += component.trianglePointsCount;
+			component.bufferOffset = _activeTrianglesVerticesCount;
+			_activeTrianglesVerticesCount += component.trianglePointsCount;
 
 			reallocateVertexBufferIfNeeded();
 			updatePrimitiveVertexBufferData(component);
 		}
 
-		_trianglePrimitiveComponents.addComponent(node.getId(), component);
+		_triangulatedPrimitiveComponents.addComponent(node.getId(), component);
 	}
 	else
 	{
@@ -75,13 +75,13 @@ void RenderSystem::removeComponent(const Node2D& node)
 {
 	if constexpr (std::is_same_v<T, TriangulatedPrimitiveComponent>)
 	{
-		auto& component = _trianglePrimitiveComponents.getComponent(node.getId()); // TODO: improve this
+		auto& component = _triangulatedPrimitiveComponents.getComponent(node.getId()); // TODO: improve this
 		delete[] component.trianglePoints;
 		component.trianglePoints = nullptr;
 
-		_trianglePrimitiveComponents.removeComponent(node.getId());
+		_triangulatedPrimitiveComponents.removeComponent(node.getId());
 
-		_triangleVertexBufferNeedsResetting = true;
+		_resetVertexBuffer = true;
 	}
 	else
 	{
