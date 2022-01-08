@@ -36,14 +36,14 @@ void SystemManager::update(float delta)
 	}
 }
 
-template <ComponentType T>
+template <DerivedComponent T>
 void SystemManager::addComponent(const Node2D& node)
 {
-	if constexpr (T == ComponentType::Transform2D || T == ComponentType::Collision2D)
+	if constexpr (std::is_same_v<T, TransformComponent> || std::is_same_v<T, CollisionComponent>)
 	{
 		_physicsSystem.addComponent<T>(node);
 	}
-	else if constexpr (T == ComponentType::ColorRect || T == ComponentType::Texture)
+	else if constexpr (std::is_same_v<T, QuadVerticesComponent>)
 	{
 		_renderSystem.addComponent<T>(node);
 	}
@@ -66,14 +66,14 @@ void SystemManager::addComponent(const Node2D& node, T component)
 	}
 }
 
-template <ComponentType T>
+template <DerivedComponent T>
 void SystemManager::removeComponent(const Node2D& node)
 {
-	if constexpr (T == ComponentType::Transform2D || T == ComponentType::Collision2D)
+	if constexpr (std::is_same_v<T, TransformComponent> || std::is_same_v<T, CollisionComponent>)
 	{
 		_physicsSystem.removeComponent<T>(node);
 	}
-	else if constexpr (T == ComponentType::ColorRect || T == ComponentType::Texture)
+	else if constexpr (std::is_same_v<T, QuadVerticesComponent>)
 	{
 		_renderSystem.removeComponent<T>(node);
 	}

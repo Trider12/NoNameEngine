@@ -16,7 +16,7 @@ namespace
 Node2D::Node2D()
 {
 	nodeManager.registerNode(this);
-	systemManager.addComponent<ComponentType::Transform2D>(*this);
+	systemManager.addComponent<TransformComponent>(*this);
 }
 
 Node2D::Node2D(const sf::Vector2f& translation) : Node2D()
@@ -26,7 +26,7 @@ Node2D::Node2D(const sf::Vector2f& translation) : Node2D()
 
 Node2D::~Node2D()
 {
-	systemManager.removeComponent<ComponentType::Transform2D>(*this);
+	systemManager.removeComponent<TransformComponent>(*this);
 }
 
 Node2D& Node2D::addChild(std::shared_ptr<Node2D> child)

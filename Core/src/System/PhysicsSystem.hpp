@@ -9,14 +9,14 @@ class PhysicsSystem : public System
 public:
 	void update(float delta);
 
-	template <ComponentType T>
+	template <DerivedComponent T>
 	void addComponent(const Node2D& node)
 	{
-		if constexpr (T == ComponentType::Transform2D)
+		if constexpr (std::is_same_v<T, TransformComponent>)
 		{
 			_transformComponents.addComponent(node.getId());
 		}
-		else if constexpr (T == ComponentType::Collision2D)
+		else if constexpr (std::is_same_v<T, CollisionComponent>)
 		{
 			_collisionComponents.addComponent(node.getId());
 		}
@@ -39,12 +39,16 @@ public:
 		}
 	}
 
-	template <ComponentType T>
+	template <DerivedComponent T>
 	void removeComponent(const Node2D& node)
 	{
-		if constexpr (T == ComponentType::Transform2D)
+		if constexpr (std::is_same_v<T, TransformComponent>)
 		{
 			_transformComponents.removeComponent(node.getId());
+		}
+		else if constexpr (std::is_same_v<T, CollisionComponent>)
+		{
+			_collisionComponents.removeComponent(node.getId());
 		}
 		else
 		{

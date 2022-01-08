@@ -4,14 +4,6 @@
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
-enum class ComponentType
-{
-	Transform2D,
-	ColorRect,
-	Texture,
-	Collision2D,
-};
-
 struct Component
 {
 };

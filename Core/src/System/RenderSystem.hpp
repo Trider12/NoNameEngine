@@ -16,10 +16,10 @@ public:
 
 	void setTransformsDirty();
 
-	template <ComponentType T>
+	template <DerivedComponent T>
 	void addComponent(const Node2D& node)
 	{
-		if constexpr (T == ComponentType::ColorRect)
+		if constexpr (std::is_same_v<T, QuadVerticesComponent>)
 		{
 			const auto& sprite = static_cast<const Sprite&>(node);
 
@@ -44,10 +44,10 @@ public:
 		}
 	}
 
-	template <ComponentType T>
+	template <DerivedComponent T>
 	void removeComponent(const Node2D& node)
 	{
-		if constexpr (T == ComponentType::ColorRect)
+		if constexpr (std::is_same_v<T, QuadVerticesComponent>)
 		{
 			_globalTransforms.removeComponent(node.getId());
 			_streamQuadVertices.removeComponent(node.getId());

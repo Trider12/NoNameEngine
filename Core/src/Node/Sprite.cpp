@@ -13,7 +13,7 @@ Sprite::Sprite()
 	, _dimensions{ sf::Vector2f(100.f, 100.f) }
 	, _color{ sf::Color::White }
 {
-	systemManager.addComponent<ComponentType::ColorRect>(*this);
+	systemManager.addComponent<QuadVerticesComponent>(*this);
 }
 
 Sprite::Sprite(const sf::Color& color, const sf::Vector2f& position, const sf::Vector2f& dimensions)
@@ -21,12 +21,12 @@ Sprite::Sprite(const sf::Color& color, const sf::Vector2f& position, const sf::V
 	, _dimensions{ dimensions }
 	, _color{ color }
 {
-	systemManager.addComponent<ComponentType::ColorRect>(*this);
+	systemManager.addComponent<QuadVerticesComponent>(*this);
 }
 
 Sprite::~Sprite()
 {
-	systemManager.removeComponent<ComponentType::ColorRect>(*this);
+	systemManager.removeComponent<QuadVerticesComponent>(*this);
 }
 
 const sf::Color& Sprite::getColor() const

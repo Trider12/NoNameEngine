@@ -21,12 +21,12 @@ public:
 	template <DerivedSystem T>
 	void update(float delta);
 
-	template <ComponentType T>
+	template <DerivedComponent T>
 	void addComponent(const Node2D& node);
 	template <DerivedComponent T>
 	void addComponent(const Node2D& node, T component);
 
-	template <ComponentType T>
+	template <DerivedComponent T>
 	void removeComponent(const Node2D& node);
 
 	template <DerivedComponent T>
