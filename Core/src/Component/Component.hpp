@@ -4,6 +4,8 @@
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
+#include "Node/PhysicsBody2D.hpp"
+
 struct Component
 {
 };
@@ -93,4 +95,5 @@ struct CollisionComponent : public Component
 	CollisionType collisionType;
 	CollisionShapeType collisionShapeType;
 	CollisionShape collisionShape;
+	PhysicsBody2D* physicsBody = nullptr;
 };

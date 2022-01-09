@@ -1,10 +1,8 @@
 #pragma once
 
-#include <SFML/System/Vector2.hpp>
+#include "Node/PhysicsBody2D.hpp"
 
-#include "Node/Node2D.hpp"
-
-class KinematicBody2D : public Node2D
+class KinematicBody2D : public PhysicsBody2D
 {
 public:
 	KinematicBody2D();

@@ -87,6 +87,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="include\Node\PhysicsBody2D.hpp" />
     <ClCompile Include="src\Node\KinematicBody2D.cpp" />
     <ClCompile Include="src\Core\Keyboard.cpp" />
     <ClCompile Include="src\Node\Primitive2D.cpp" />
