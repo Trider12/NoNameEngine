@@ -68,6 +68,13 @@ void RenderSystem::update(float delta)
 	}
 
 	_renderTarget->draw(*_triangleVertexBuffer, 0, _activeTrianglesVerticesCount);
+
+#if DEBUG
+	for (const auto& data : _debugDrawData)
+	{
+		_renderTarget->draw(data.vertices.data(), data.vertices.size(), data.type);
+	}
+#endif // DEBUG
 }
 
 void RenderSystem::init(sf::RenderTarget& target)

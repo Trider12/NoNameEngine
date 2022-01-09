@@ -4,6 +4,11 @@
 #include "Component/Component.hpp"
 #include "Component/ComponentArray.hpp"
 #include "Node/Primitive2D.hpp"
+#include "Core/Debug.hpp"
+
+#if DEBUG
+#include <SFML/Graphics/PrimitiveType.hpp>
+#endif // DEBUG
 
 namespace sf
 {
@@ -27,6 +32,27 @@ public:
 
 	template <DerivedComponent T>
 	void removeComponent(const Node2D& node);
+
+#if DEBUG
+	struct DebugDrawData
+	{
+		std::vector<sf::Vertex> vertices;
+		sf::PrimitiveType type;
+	};
+
+	std::vector<DebugDrawData> _debugDrawData;
+
+#pragma warning(disable : 26812) // FFS Microsoft
+	void debugDraw(const sf::Vertex* vertices, std::size_t vertexCount, sf::PrimitiveType type)
+	{
+		_debugDrawData.push_back({ {vertices, vertices + vertexCount}, type });
+	}
+
+	void debugClear()
+	{
+		_debugDrawData.clear();
+	}
+#endif // DEBUG
 
 private:
 	RenderSystem(SystemManager& manager);
