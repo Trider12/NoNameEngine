@@ -166,18 +166,21 @@ namespace
 
 		auto halfDims = sf::Vector2f(rect.width / 2.f, rect.height / 2.f);
 		auto rectCenter = sf::Vector2f(rect.left + halfDims.x, rect.top + halfDims.y);
-		auto radialDirection = VectorHelper::normalized(rectCenter - circleCenter);
-		auto circumferencePoint = circleCenter + circleRadius * radialDirection;
+		auto circleToRectDirection = VectorHelper::normalized(rectCenter - circleCenter);
+		auto circumferencePointLookingAtRect = circleCenter + circleRadius * circleToRectDirection;
+		auto circumferencePointNormalToRect = circleCenter + (std::fabsf(circleToRectDirection.x) < std::fabsf(circleToRectDirection.y) ?
+			sf::Vector2f(std::copysignf(circleRadius, circleToRectDirection.x), 0.f) :
+			sf::Vector2f(0.f, std::copysignf(circleRadius, circleToRectDirection.y)));
 
-		if (!rect.contains(circumferencePoint) || pureStaticCheck(c1, c2) || pureKinematicCheck(c1, c2))
+		// TODO: I have a big feeling this can be simplified
+
+		if (!rect.contains(circumferencePointLookingAtRect) && !rect.contains(circumferencePointNormalToRect) || pureStaticCheck(c1, c2) || pureKinematicCheck(c1, c2))
 		{
 			return;
 		}
 
-		// TODO: I have a big feeling this can be simplified
-
 		auto diagonalTangent = rect.height / rect.width;
-		auto tangent = std::fabsf(radialDirection.y / radialDirection.x);
+		auto tangent = std::fabsf(circleToRectDirection.y / circleToRectDirection.x);
 
 		sf::Vector2f translation;
 		sf::Vector2f intersection;
@@ -187,45 +190,47 @@ namespace
 			if (circleCenter.x > rect.left && circleCenter.x < rect.left + rect.width)
 			{
 				intersection.x = circleCenter.x;
-				intersection.y = circleCenter.y + std::copysignf(circleRadius, radialDirection.y);
+				intersection.y = circleCenter.y + std::copysignf(circleRadius, circleToRectDirection.y);
 			}
 			else
 			{
-				intersection.x = rectCenter.x - std::copysignf(halfDims.x, radialDirection.x);
-				intersection.y = circleCenter.y + std::copysignf(std::sqrtf(circleRadius * circleRadius - std::powf(intersection.x - circleCenter.x, 2.f)), radialDirection.y);
+				intersection.x = rectCenter.x - std::copysignf(halfDims.x, circleToRectDirection.x);
+				intersection.y = circleCenter.y + std::copysignf(std::sqrtf(circleRadius * circleRadius - std::powf(intersection.x - circleCenter.x, 2.f)), circleToRectDirection.y);
 			}
 
-			translation.y = std::copysignf(halfDims.y, radialDirection.y) + intersection.y - rectCenter.y;
+			translation.y = std::copysignf(halfDims.y, circleToRectDirection.y) + intersection.y - rectCenter.y;
 		}
 		else
 		{
 			if (circleCenter.y > rect.top && circleCenter.y < rect.top + rect.height)
 			{
 				intersection.y = circleCenter.y;
-				intersection.x = circleCenter.x + std::copysignf(circleRadius, radialDirection.x);
+				intersection.x = circleCenter.x + std::copysignf(circleRadius, circleToRectDirection.x);
 			}
 			else
 			{
-				intersection.y = rectCenter.y - std::copysignf(halfDims.y, radialDirection.y);
-				intersection.x = circleCenter.x + std::copysignf(std::sqrtf(circleRadius * circleRadius - std::powf(intersection.y - circleCenter.y, 2.f)), radialDirection.x);
+				intersection.y = rectCenter.y - std::copysignf(halfDims.y, circleToRectDirection.y);
+				intersection.x = circleCenter.x + std::copysignf(std::sqrtf(circleRadius * circleRadius - std::powf(intersection.y - circleCenter.y, 2.f)), circleToRectDirection.x);
 			}
 
-			translation.x = std::copysignf(halfDims.x, radialDirection.x) + intersection.x - rectCenter.x;
+			translation.x = std::copysignf(halfDims.x, circleToRectDirection.x) + intersection.x - rectCenter.x;
 		}
 
-		applyCollisionResolvingTranslationToKinematicBody(c1, c2, t1, t2, translation);
-
-#if DEBUG & 0
-		sf::Vertex lines[] =
+#if DEBUG && 0
 		{
-			{ rectCenter, sf::Color::Red}, { intersection, sf::Color::Red},
-			{ intersection, sf::Color::Green}, { intersection + translation, sf::Color::Green}
-		};
+			sf::Vertex lines[] =
+			{
+				{ rectCenter, sf::Color::Red}, { intersection, sf::Color::Green},
+				{ intersection, sf::Color::Green}, { intersection + translation, sf::Color::Green}
+			};
 
-		auto& renderSystem = Locator::getInstance().getSystemManager().getSystem<RenderSystem>();
-		renderSystem.debugClear();
-		renderSystem.debugDraw(lines, 4, sf::Lines);
+			auto& renderSystem = Locator::getInstance().getSystemManager().getSystem<RenderSystem>();
+			renderSystem.debugClear();
+			renderSystem.debugDraw(lines, 4, sf::Lines);
+		}
 #endif // DEBUG
+
+		applyCollisionResolvingTranslationToKinematicBody(c1, c2, t1, t2, translation);
 	}
 
 	void preventCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
