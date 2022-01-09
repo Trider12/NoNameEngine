@@ -5,10 +5,12 @@ VisualStudioVersion = 16.0.31911.196
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "Core\Core.vcxproj", "{5787C256-1823-4343-A269-4F8D8241577C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Game", "Game\Game.vcxproj", "{D591ED27-AD59-49B8-B5FD-F55372651D70}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CollisionDemo", "Examples\CollisionDemo\CollisionDemo.vcxproj", "{D591ED27-AD59-49B8-B5FD-F55372651D70}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5787C256-1823-4343-A269-4F8D8241577C} = {5787C256-1823-4343-A269-4F8D8241577C}
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{6552505A-EE26-4A88-8485-04056C1E2684}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D591ED27-AD59-49B8-B5FD-F55372651D70} = {6552505A-EE26-4A88-8485-04056C1E2684}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8D9E5FD9-1831-4363-B00C-4366E9585478}
