@@ -3,6 +3,10 @@
 #include "Utility/Helpers.hpp"
 #include "Core/Debug.hpp"
 
+#if DEBUG
+#include "Core/Locator.hpp"
+#endif // DEBUG
+
 namespace
 {
 	const uint8_t initialNumberOfComponents = 32;
@@ -170,20 +174,58 @@ namespace
 			return;
 		}
 
+		// TODO: I have a big feeling this can be simplified
+
 		auto diagonalTangent = rect.height / rect.width;
 		auto tangent = std::fabsf(radialDirection.y / radialDirection.x);
 
-		auto quadrantSignX = std::copysignf(1.f, -radialDirection.x);
-		auto quadrantSignY = std::copysignf(1.f, -radialDirection.y);
+		sf::Vector2f translation;
+		sf::Vector2f intersection;
 
-		auto rectIntersectionPoint =
-			tangent > diagonalTangent ?
-			sf::Vector2f(rectCenter.x + halfDims.y / tangent * quadrantSignX, rectCenter.y + halfDims.y * quadrantSignY) :
-			sf::Vector2f(rectCenter.x + halfDims.x * quadrantSignX, rectCenter.y + halfDims.x * tangent * quadrantSignY);
+		if (tangent > diagonalTangent)
+		{
+			if (circleCenter.x > rect.left && circleCenter.x < rect.left + rect.width)
+			{
+				intersection.x = circleCenter.x;
+				intersection.y = circleCenter.y + std::copysignf(circleRadius, radialDirection.y);
+			}
+			else
+			{
+				intersection.x = rectCenter.x - std::copysignf(halfDims.x, radialDirection.x);
+				intersection.y = circleCenter.y + std::copysignf(std::sqrtf(circleRadius * circleRadius - std::powf(intersection.x - circleCenter.x, 2.f)), radialDirection.y);
+			}
 
-		auto translation = circumferencePoint - rectIntersectionPoint;
+			translation.y = std::copysignf(halfDims.y, radialDirection.y) + intersection.y - rectCenter.y;
+		}
+		else
+		{
+			if (circleCenter.y > rect.top && circleCenter.y < rect.top + rect.height)
+			{
+				intersection.y = circleCenter.y;
+				intersection.x = circleCenter.x + std::copysignf(circleRadius, radialDirection.x);
+			}
+			else
+			{
+				intersection.y = rectCenter.y - std::copysignf(halfDims.y, radialDirection.y);
+				intersection.x = circleCenter.x + std::copysignf(std::sqrtf(circleRadius * circleRadius - std::powf(intersection.y - circleCenter.y, 2.f)), radialDirection.x);
+			}
+
+			translation.x = std::copysignf(halfDims.x, radialDirection.x) + intersection.x - rectCenter.x;
+		}
 
 		applyCollisionResolvingTranslationToKinematicBody(c1, c2, t1, t2, translation);
+
+#if DEBUG & 0
+		sf::Vertex lines[] =
+		{
+			{ rectCenter, sf::Color::Red}, { intersection, sf::Color::Red},
+			{ intersection, sf::Color::Green}, { intersection + translation, sf::Color::Green}
+		};
+
+		auto& renderSystem = Locator::getInstance().getSystemManager().getSystem<RenderSystem>();
+		renderSystem.debugClear();
+		renderSystem.debugDraw(lines, 4, sf::Lines);
+#endif // DEBUG
 	}
 
 	void preventCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2)
