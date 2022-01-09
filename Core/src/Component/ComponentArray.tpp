@@ -47,13 +47,13 @@ void ComponentArray<T>::addComponent(uint64_t nodeId, T component)
 {
 	assert(_nodeId2cidMap.find(nodeId) == _nodeId2cidMap.end());
 
-	if (_activeCount == _components.size())
-	{
-		_components.push_back(component);
-	}
-
 	auto cid = _activeCount++;
 	_components[cid] = component;
+
+	if (_activeCount == _components.size())
+	{
+		_components.resize(size_t(_components.size() * 1.5f));
+	}
 
 	_nodeId2cidMap[nodeId] = cid;
 	_cid2nodeIdMap[cid] = nodeId;

@@ -17,6 +17,7 @@ struct TransformComponent : public Component
 {
 	sf::Transform globalTransform;
 	sf::Transform deferredTransform;
+	Node2D* node2D;
 };
 
 struct TriangulatedPrimitiveComponent : public Component

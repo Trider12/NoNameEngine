@@ -50,4 +50,5 @@ private:
 	uint64_t _id = 0;
 
 	friend class Node2DManager;
+	friend class PhysicsSystem;
 };

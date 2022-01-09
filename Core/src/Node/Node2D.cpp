@@ -16,7 +16,9 @@ namespace
 Node2D::Node2D()
 {
 	nodeManager.registerNode(this);
-	systemManager.addComponent<TransformComponent>(*this);
+	TransformComponent component;
+	component.node2D = this;
+	systemManager.addComponent<TransformComponent>(*this, component);
 }
 
 Node2D::Node2D(const sf::Vector2f& translation) : Node2D()
@@ -85,13 +87,13 @@ void Node2D::update(float delta)
 {
 }
 
-void Node2D::transformDeferred(const sf::Transform& transform) // probably needs optimizing
+void Node2D::transformDeferred(const sf::Transform& transform) // TODO: needs optimizing
 {
 	systemManager.getComponent<TransformComponent>(_id).deferredTransform *= transform;
 
 	for (auto& child : _children)
 	{
-		systemManager.getComponent<TransformComponent>(child->getId()).deferredTransform *= transform;
+		child->transformDeferred(transform);
 	}
 }
 

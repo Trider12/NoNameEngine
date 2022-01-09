@@ -37,22 +37,9 @@ void SystemManager::update(float delta)
 }
 
 template <DerivedComponent T>
-void SystemManager::addComponent(const Node2D& node)
-{
-	if constexpr (std::is_same_v<T, TransformComponent> || std::is_same_v<T, CollisionComponent>)
-	{
-		_physicsSystem.addComponent<T>(node);
-	}
-	else
-	{
-		static_assert(always_false<T>, "No specialization!");
-	}
-}
-
-template <DerivedComponent T>
 void SystemManager::addComponent(const Node2D& node, T component)
 {
-	if constexpr (std::is_same_v<T, CollisionComponent>)
+	if constexpr (std::is_same_v<T, TransformComponent> || std::is_same_v<T, CollisionComponent>)
 	{
 		_physicsSystem.addComponent<T>(node, component);
 	}

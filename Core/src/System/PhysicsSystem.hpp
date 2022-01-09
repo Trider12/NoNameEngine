@@ -10,26 +10,13 @@ public:
 	void update(float delta);
 
 	template <DerivedComponent T>
-	void addComponent(const Node2D& node)
+	void addComponent(const Node2D& node, T component)
 	{
 		if constexpr (std::is_same_v<T, TransformComponent>)
 		{
-			_transformComponents.addComponent(node.getId());
+			_transformComponents.addComponent(node.getId(), component);
 		}
 		else if constexpr (std::is_same_v<T, CollisionComponent>)
-		{
-			_collisionComponents.addComponent(node.getId());
-		}
-		else
-		{
-			static_assert(always_false<T>, "No specialization!");
-		}
-	}
-
-	template <DerivedComponent T>
-	void addComponent(const Node2D& node, T component)
-	{
-		if constexpr (std::is_same_v<T, CollisionComponent>)
 		{
 			_collisionComponents.addComponent(node.getId(), component);
 		}
