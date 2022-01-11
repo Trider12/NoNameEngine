@@ -28,7 +28,7 @@ void RenderSystem::update(float delta)
 	}
 	else if (_transformsDirty)
 	{
-		std::scoped_lock lock(_systemManager.getSystem<PhysicsSystem>().mutex);
+		std::scoped_lock lock(mutex, _systemManager.getSystem<PhysicsSystem>().mutex);
 
 		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
 		{
@@ -40,13 +40,15 @@ void RenderSystem::update(float delta)
 		_transformsDirty = false;
 	}
 
+	std::scoped_lock lock(mutex);
+
 	_renderTarget->draw(*_triangleVertexBuffer, 0, _activeTrianglesVerticesCount);
 
 #if DEBUG
 	for (const auto& data : _debugDrawData)
 	{
 		_renderTarget->draw(data.vertices.data(), data.vertices.size(), data.type);
-	}
+}
 #endif // DEBUG
 }
 
@@ -59,6 +61,8 @@ void RenderSystem::init(sf::RenderTarget& target)
 
 void RenderSystem::cleanup()
 {
+	std::scoped_lock lock(mutex); // just in case
+
 	_triangleVertexBuffer->create(0);
 	delete _triangleVertexBuffer;
 }
@@ -91,6 +95,8 @@ void RenderSystem::resetBuffer()
 		}
 	}
 
+	std::scoped_lock lock(mutex);
+
 	if (_triangleVertexBuffer == nullptr)
 	{
 		_triangleVertexBuffer = new sf::VertexBuffer(sf::PrimitiveType::Triangles);
@@ -107,6 +113,8 @@ void RenderSystem::resetBuffer()
 
 void RenderSystem::reallocateVertexBufferIfNeeded()
 {
+	std::scoped_lock lock(mutex);
+
 	auto ratio = _activeTrianglesVerticesCount * 1.f / _triangleVertexBuffer->getVertexCount();
 
 	auto newCapacity =
