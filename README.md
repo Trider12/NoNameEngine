@@ -1,7 +1,7 @@
 # No Name Engine (WIP)
 ## Description
 Yet another simple 2D game engine/framework written in `C++20`.\
-The engine utilizes [`SFML`](https://www.sfml-dev.org/) for OS handling, math types, and rendering (this is likely a subject to change in favor of `Vulkan`) and [`Dear ImGui`](https://github.com/ocornut/imgui) for its (yet non-existent) GUI.
+The engine utilizes [`SFML`](https://www.sfml-dev.org/) for OS handling, math types, and rendering (this is likely a subject to change in favor of `Vulkan`) and [`Dear ImGui`](https://github.com/ocornut/imgui) for its GUI.
 
 See [Examples](https://github.com/Trider12/NoNameEngine/tree/master/Examples/) folder for more info.
 ## Build Instructions
