@@ -32,7 +32,12 @@ private:
 	sf::Clock _updateDeltaClock;
 	sf::Clock _renderDeltaClock;
 
-	float _elapsedSeconds = 0.f;
+	std::atomic<float> _tickDeltaTime = 0.f;
+	float _frameDeltaTime = 0.f;
+	float _elapsedFrameSeconds = 0.f;
+	float _elapsedFixedTickSeconds = 0.f;
+
+	bool _displayDebugInfo = false;
 };
 
 #define CORE_LOOP(dimensions, name, root) for (CoreLoop loop(dimensions, name, root); loop.isRunning(); loop.update())

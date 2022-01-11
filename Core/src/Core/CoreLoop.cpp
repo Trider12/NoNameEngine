@@ -60,17 +60,22 @@ void CoreLoop::update()
 			return;
 		}
 
+		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Key::F1)
+		{
+			_displayDebugInfo = !_displayDebugInfo;
+		}
+
 		nodeManager.input(static_cast<InputEvent>(event));
 	}
 
-	auto delta = _updateDeltaClock.restart().asSeconds();
+	_tickDeltaTime = _updateDeltaClock.restart().asSeconds();
 
-	for (_elapsedSeconds += delta; _elapsedSeconds - fixedDelta > std::numeric_limits<float>::epsilon(); _elapsedSeconds -= fixedDelta)
+	for (_elapsedFixedTickSeconds += _tickDeltaTime; _elapsedFixedTickSeconds - fixedDelta > std::numeric_limits<float>::epsilon(); _elapsedFixedTickSeconds -= fixedDelta)
 	{
 		systemManager.update<PhysicsSystem>(fixedDelta);
 	}
 
-	nodeManager.update(delta);
+	nodeManager.update(_tickDeltaTime);
 }
 
 std::shared_ptr<Node2D> CoreLoop::getRoot()
@@ -81,20 +86,55 @@ std::shared_ptr<Node2D> CoreLoop::getRoot()
 void CoreLoop::render()
 {
 	const auto dt = _renderDeltaClock.restart();
+	_frameDeltaTime = dt.asSeconds();
+	_elapsedFrameSeconds += _frameDeltaTime;
 
 	ImGui::SFML::Update(_window, dt);
 
 	_window.clear(clearColorDefault);
 
-	systemManager.update<RenderSystem>(dt.asSeconds());
+	systemManager.update<RenderSystem>(_frameDeltaTime);
+
+	drawUi();
 
 	ImGui::SFML::Render(_window);
+
 	_window.display();
 }
 
 void CoreLoop::drawUi()
 {
-	// guess no UI this time, huh?
+	if (_displayDebugInfo)
+	{
+		ImGui::SetNextWindowPos({}, ImGuiCond_Always);
+		ImGui::SetNextWindowSize({ 200.f, 100.f });
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 10.f, 10.f });
+		ImGui::Begin("Counter", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoNavInputs | ImGuiWindowFlags_NoNavFocus);
+
+		static auto frameTime = 0.f;
+		static auto tickTime = 0.f;
+		static bool vSyncCheckboxValue = true;
+
+		if (_elapsedFrameSeconds > 0.5f)
+		{
+			_elapsedFrameSeconds = 0.f;
+			frameTime = 1.f / _frameDeltaTime;
+			tickTime = 1.f / _tickDeltaTime;
+		}
+
+		ImGui::PushStyleColor(ImGuiCol_Text, { 0.f, 1.f, 0.f, 1.f });
+		ImGui::Text("FPS: %.2f", frameTime);
+		ImGui::Text("TPS: %.2f", tickTime);
+
+		if (ImGui::Checkbox("VSync", &vSyncCheckboxValue))
+		{
+			_window.setVerticalSyncEnabled(vSyncCheckboxValue);
+		}
+
+		ImGui::PopStyleColor();
+		ImGui::End();
+		ImGui::PopStyleVar();
+	}
 }
 
 void CoreLoop::updateAi()
