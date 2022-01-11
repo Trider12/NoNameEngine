@@ -20,51 +20,24 @@ RenderSystem::RenderSystem(SystemManager& manager)
 
 void RenderSystem::update(float delta)
 {
-	if (_transformsDirty)
+	if (_resetVertexBuffer)
+	{
+		resetBuffer();
+
+		_transformsDirty = false;
+	}
+	else if (_transformsDirty)
 	{
 		std::scoped_lock lock(_systemManager.getSystem<PhysicsSystem>().mutex);
 
 		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
 		{
-			auto& primitive = _triangulatedPrimitiveComponents[i];
+			auto& transform = _systemManager.getComponent<TransformComponent>(_triangulatedPrimitiveComponents.getNodeId(i)).globalTransform;
 
-			auto newTransform = _systemManager.getComponent<TransformComponent>(_triangulatedPrimitiveComponents.getNodeId(i)).globalTransform;
-
-			if (primitive.transform == newTransform)
-			{
-				continue;
-			}
-
-			primitive.transform = newTransform;
-			primitive.dirty = true;
-			_primitivesDirty = true;
+			updatePrimitiveVertexBufferData(_triangulatedPrimitiveComponents[i], transform);
 		}
 
 		_transformsDirty = false;
-	}
-
-	if (_resetVertexBuffer)
-	{
-		resetBuffer();
-	}
-
-	if (_primitivesDirty)
-	{
-		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
-		{
-			auto& primitive = _triangulatedPrimitiveComponents[i];
-
-			if (!primitive.dirty)
-			{
-				continue;
-			}
-
-			updatePrimitiveVertexBufferData(primitive);
-
-			primitive.dirty = false;
-		}
-
-		_primitivesDirty = false;
 	}
 
 	_renderTarget->draw(*_triangleVertexBuffer, 0, _activeTrianglesVerticesCount);
@@ -97,18 +70,24 @@ void RenderSystem::setTransformsDirty()
 
 void RenderSystem::resetBuffer()
 {
-	std::vector<sf::Vertex> vertices;
+	static std::vector<sf::Vertex> vertices;
+	vertices.clear();
 
-	for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
 	{
-		auto& primitive = _triangulatedPrimitiveComponents[i];
+		std::scoped_lock lock(_systemManager.getSystem<PhysicsSystem>().mutex);
 
-		primitive.bufferOffset = unsigned(vertices.size());
-		primitive.dirty = false;
-
-		for (uint64_t j = 0; j < primitive.trianglePointsCount; ++j)
+		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
 		{
-			vertices.push_back({ primitive.transform.transformPoint(primitive.trianglePoints[j]), primitive.color });
+			auto& primitive = _triangulatedPrimitiveComponents[i];
+
+			primitive.bufferOffset = unsigned(vertices.size());
+
+			const auto& transform = _systemManager.getComponent<TransformComponent>(_triangulatedPrimitiveComponents.getNodeId(i)).globalTransform;
+
+			for (uint64_t j = 0; j < primitive.trianglePointsCount; ++j)
+			{
+				vertices.push_back({ transform.transformPoint(primitive.trianglePoints[j]), primitive.color });
+			}
 		}
 	}
 
@@ -118,11 +97,12 @@ void RenderSystem::resetBuffer()
 		_triangleVertexBuffer->create(vertices.size());
 	}
 
+	assert(vertices.size() <= _triangleVertexBuffer->getVertexCount());
+
 	_triangleVertexBuffer->update(vertices.data(), vertices.size(), 0);
 	_activeTrianglesVerticesCount = vertices.size();
 
 	_resetVertexBuffer = false;
-	_primitivesDirty = false;
 }
 
 void RenderSystem::reallocateVertexBufferIfNeeded()
@@ -149,15 +129,18 @@ void RenderSystem::reallocateVertexBufferIfNeeded()
 	_triangleVertexBuffer = newBuffer;
 }
 
-void RenderSystem::updatePrimitiveVertexBufferData(const TriangulatedPrimitiveComponent& primitive)
+void RenderSystem::updatePrimitiveVertexBufferData(const TriangulatedPrimitiveComponent& primitive, const sf::Transform& transform)
 {
-	std::vector<sf::Vertex> vertices;
+	std::vector<sf::Vertex> vertices; // glBufferSubData might not yet be finished, so have to use new memory
+
 	vertices.reserve(primitive.trianglePointsCount);
 
 	for (uint64_t j = 0; j < primitive.trianglePointsCount; ++j)
 	{
-		vertices.push_back({ primitive.transform.transformPoint(primitive.trianglePoints[j]), primitive.color });
+		vertices.push_back({ transform.transformPoint(primitive.trianglePoints[j]), primitive.color });
 	}
+
+	assert(vertices.size() <= _triangleVertexBuffer->getVertexCount());
 
 	_triangleVertexBuffer->update(vertices.data(), vertices.size(), unsigned(primitive.bufferOffset));
 }

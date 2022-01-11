@@ -59,7 +59,7 @@ private:
 
 	void resetBuffer();
 	void reallocateVertexBufferIfNeeded();
-	void updatePrimitiveVertexBufferData(const TriangulatedPrimitiveComponent& primitive);
+	void updatePrimitiveVertexBufferData(const TriangulatedPrimitiveComponent& primitive, const sf::Transform& transform);
 
 	sf::RenderTarget* _renderTarget = nullptr;
 
@@ -68,7 +68,6 @@ private:
 
 	uint64_t _activeTrianglesVerticesCount = 0;
 	bool _resetVertexBuffer = false;
-	bool _primitivesDirty = false;
 	bool _transformsDirty = true;
 
 	friend class SystemManager;
@@ -85,7 +84,6 @@ void RenderSystem::addComponent(const Node2D& node, T component)
 			_activeTrianglesVerticesCount += component.trianglePointsCount;
 
 			reallocateVertexBufferIfNeeded();
-			updatePrimitiveVertexBufferData(component);
 		}
 
 		_triangulatedPrimitiveComponents.addComponent(node.getId(), component);
