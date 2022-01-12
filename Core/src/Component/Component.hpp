@@ -37,13 +37,6 @@ struct CollisionComponent : public Component
 		//Rigid = 2 // TODO
 	};
 
-	enum class CollisionShapeType : uint8_t
-	{
-		AABB = 0,
-		Circle = 1,
-		//Rectangle = 2 // TODO
-	};
-
 	struct CollisionShape
 	{
 		union
@@ -60,24 +53,24 @@ struct CollisionComponent : public Component
 
 	CollisionComponent()
 		: collisionType{ CollisionType::Static }
-		, collisionShapeType{ CollisionShapeType::AABB }
+		, collisionShapeType{ PhysicsBody2D::CollisionShapeType::AABB }
 		, collisionShape{ CollisionShape { sf::FloatRect() } }
 	{
 	}
 
-	CollisionComponent(CollisionType type, CollisionShapeType shapeType)
+	CollisionComponent(CollisionType type, PhysicsBody2D::CollisionShapeType shapeType)
 		: collisionType{ type }
 		, collisionShapeType{ shapeType }
 		, collisionShape{ }
 	{
 		switch (collisionShapeType)
 		{
-			case CollisionComponent::CollisionShapeType::AABB:
+			case PhysicsBody2D::CollisionShapeType::AABB:
 			{
 				collisionShape.rect = sf::FloatRect(0.f, 0.f, 100.f, 100.f);
 				break;
 			}
-			case CollisionComponent::CollisionShapeType::Circle:
+			case PhysicsBody2D::CollisionShapeType::Circle:
 			{
 				collisionShape.center = {};
 				collisionShape.radius = 10.f;
@@ -92,7 +85,7 @@ struct CollisionComponent : public Component
 	}
 
 	CollisionType collisionType;
-	CollisionShapeType collisionShapeType;
+	PhysicsBody2D::CollisionShapeType collisionShapeType;
 	CollisionShape collisionShape;
 	PhysicsBody2D* physicsBody = nullptr;
 };

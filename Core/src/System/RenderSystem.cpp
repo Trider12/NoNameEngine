@@ -26,9 +26,12 @@ void RenderSystem::update(float delta)
 
 		_transformsDirty = false;
 	}
-	else if (_transformsDirty)
+
+	std::scoped_lock lock(mutex);
+
+	if (_transformsDirty)
 	{
-		std::scoped_lock lock(mutex, _systemManager.getSystem<PhysicsSystem>().mutex);
+		std::scoped_lock lock(_systemManager.getSystem<PhysicsSystem>().mutex);
 
 		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
 		{
@@ -40,15 +43,13 @@ void RenderSystem::update(float delta)
 		_transformsDirty = false;
 	}
 
-	std::scoped_lock lock(mutex);
-
 	_renderTarget->draw(*_triangleVertexBuffer, 0, _activeTrianglesVerticesCount);
 
 #if DEBUG
 	for (const auto& data : _debugDrawData)
 	{
 		_renderTarget->draw(data.vertices.data(), data.vertices.size(), data.type);
-}
+	}
 #endif // DEBUG
 }
 
@@ -148,7 +149,7 @@ void RenderSystem::updatePrimitiveVertexBufferData(const TriangulatedPrimitiveCo
 		vertices.push_back({ transform.transformPoint(primitive.trianglePoints[j]), primitive.color });
 	}
 
-	assert(vertices.size() <= _triangleVertexBuffer->getVertexCount());
+	assert(primitive.bufferOffset + vertices.size() <= _triangleVertexBuffer->getVertexCount());
 
 	_triangleVertexBuffer->update(vertices.data(), vertices.size(), unsigned(primitive.bufferOffset));
 }

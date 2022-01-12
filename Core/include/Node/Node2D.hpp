@@ -38,6 +38,7 @@ protected:
 	virtual void update(float delta);
 
 	void translateDeferred(const sf::Vector2f& translation);
+	void rotateDeferred(float rotationDegrees);
 	void transformDeferred(const sf::Transform& transform);
 
 	Node2D* getParent() const { return _parent; }

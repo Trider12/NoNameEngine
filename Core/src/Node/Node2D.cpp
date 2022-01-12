@@ -107,3 +107,9 @@ void Node2D::translateDeferred(const sf::Vector2f& translation)
 	auto transform = sf::Transform::Identity;
 	transformDeferred(transform.translate(translation));
 }
+
+void Node2D::rotateDeferred(float rotationDegrees)
+{
+	auto transform = sf::Transform::Identity;
+	transformDeferred(transform.rotate(rotationDegrees));
+}

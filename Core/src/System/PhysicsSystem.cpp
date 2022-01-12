@@ -37,6 +37,9 @@ void PhysicsSystem::update(float delta)
 			auto& c2 = _collisionComponents[j];
 			auto& t2 = _transformComponents[_collisionComponents.getNodeId(j)];
 
+			translation.x = 0.f;
+			translation.y = 0.f;
+
 			if (preventCollision(c1, c2, t1, t2, translation))
 			{
 				if (c1.collisionType == CollisionComponent::CollisionType::Kinematic)
@@ -153,11 +156,8 @@ namespace
 		return true;
 	}
 
-	bool preventAABBxCircleCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2, sf::Vector2f& translation)
+	bool preventAABBxCircleCollision(const CollisionComponent& c1, const CollisionComponent& c2, sf::Vector2f& translation, sf::FloatRect rect, sf::Vector2f circleCenter, float circleRadius)
 	{
-		auto rect = (t1.globalTransform * t1.deferredTransform).transformRect(c1.collisionShape.rect);
-		auto circleCenter = (t2.globalTransform * t2.deferredTransform).transformPoint(c2.collisionShape.center);
-		auto circleRadius = c2.collisionShape.radius;
 		auto circleRect = sf::FloatRect(circleCenter.x - circleRadius, circleCenter.y - circleRadius, circleRadius * 2.f, circleRadius * 2.f);
 
 		if (rectsAreNotOverlapping(rect, circleRect))
@@ -216,48 +216,87 @@ namespace
 			translation.x = std::copysignf(halfDims.x, circleToRectDirection.x) + intersection.x - rectCenter.x;
 		}
 
-#if DEBUG && 0
-		{
-			sf::Vertex lines[] =
-			{
-				{ rectCenter, sf::Color::Red}, { intersection, sf::Color::Green},
-				{ intersection, sf::Color::Green}, { intersection + translation, sf::Color::Green}
-			};
-
-			auto& renderSystem = Locator::getInstance().getSystemManager().getSystem<RenderSystem>();
-			renderSystem.debugClear();
-			renderSystem.debugDraw(lines, 4, sf::Lines);
-		}
-#endif // DEBUG
-
 		return true;
+	}
+
+	bool preventAABBxCircleCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2, sf::Vector2f& translation)
+	{
+		auto rect = (t1.globalTransform * t1.deferredTransform).transformRect(c1.collisionShape.rect);
+		auto circleCenter = (t2.globalTransform * t2.deferredTransform).transformPoint(c2.collisionShape.center);
+		auto circleRadius = c2.collisionShape.radius;
+
+		return preventAABBxCircleCollision(c1, c2, translation, rect, circleCenter, circleRadius);
+	}
+
+	bool preventRectanglexCircleCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2, sf::Vector2f& translation)
+	{
+		return false; // TODO
+	}
+
+	bool preventAABBxRectangleCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2, sf::Vector2f& translation)
+	{
+		return false; // TODO
+	}
+
+	bool preventRectanglexRectangleCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2, sf::Vector2f& translation)
+	{
+		return false; // TODO
 	}
 
 	bool preventCollision(const CollisionComponent& c1, const CollisionComponent& c2, TransformComponent& t1, TransformComponent& t2, sf::Vector2f& translation)
 	{
-		if (c1.collisionShapeType == CollisionComponent::CollisionShapeType::AABB)
+		switch (c1.collisionShapeType)
 		{
-			if (c2.collisionShapeType == CollisionComponent::CollisionShapeType::AABB)
+			case PhysicsBody2D::CollisionShapeType::AABB:
 			{
-				return preventAABBxAABBCollision(c1, c2, t1, t2, translation);
-			}
+				switch (c2.collisionShapeType)
+				{
+					case PhysicsBody2D::CollisionShapeType::AABB:
+						return preventAABBxAABBCollision(c1, c2, t1, t2, translation);
+						break;
+					case PhysicsBody2D::CollisionShapeType::Circle:
+						return preventAABBxCircleCollision(c1, c2, t1, t2, translation);
+						break;
+					case PhysicsBody2D::CollisionShapeType::Rectangle:
+						return preventAABBxRectangleCollision(c1, c2, t1, t2, translation);
+						break;
+				}
 
-			if (c2.collisionShapeType == CollisionComponent::CollisionShapeType::Circle)
-			{
-				return preventAABBxCircleCollision(c1, c2, t1, t2, translation);
+				break;
 			}
-		}
-
-		if (c1.collisionShapeType == CollisionComponent::CollisionShapeType::Circle)
-		{
-			if (c2.collisionShapeType == CollisionComponent::CollisionShapeType::Circle)
+			case PhysicsBody2D::CollisionShapeType::Circle:
 			{
-				return preventCirclexCircleCollision(c1, c2, t1, t2, translation);
+				switch (c2.collisionShapeType)
+				{
+					case PhysicsBody2D::CollisionShapeType::AABB:
+						return preventAABBxCircleCollision(c2, c1, t2, t1, translation);
+						break;
+					case PhysicsBody2D::CollisionShapeType::Circle:
+						return preventCirclexCircleCollision(c1, c2, t1, t2, translation);
+						break;
+					case PhysicsBody2D::CollisionShapeType::Rectangle:
+						return preventRectanglexCircleCollision(c2, c1, t2, t1, translation);
+						break;
+				}
+
+				break;
 			}
-
-			if (c2.collisionShapeType == CollisionComponent::CollisionShapeType::AABB)
+			case PhysicsBody2D::CollisionShapeType::Rectangle:
 			{
-				return preventAABBxCircleCollision(c2, c1, t2, t1, translation);
+				switch (c2.collisionShapeType)
+				{
+					case PhysicsBody2D::CollisionShapeType::AABB:
+						return preventAABBxRectangleCollision(c2, c1, t2, t1, translation);
+						break;
+					case PhysicsBody2D::CollisionShapeType::Circle:
+						return preventRectanglexCircleCollision(c1, c2, t1, t2, translation);
+						break;
+					case PhysicsBody2D::CollisionShapeType::Rectangle:
+						return preventRectanglexRectangleCollision(c1, c2, t1, t2, translation);
+						break;
+				}
+
+				break;
 			}
 		}
 
