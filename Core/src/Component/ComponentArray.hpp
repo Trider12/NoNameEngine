@@ -1,44 +1,15 @@
 #pragma once
 
-#include <unordered_map>
+#include "DataStructures/PackedArray.hpp"
 
-class Node2D;
+#include <unordered_map>
+#include <cassert>
 
 template <typename T>
-class ComponentArray
+class ComponentArray : public PackedArray<T>
 {
 public:
-	struct Iterator
-	{
-		using iterator_category = std::forward_iterator_tag;
-		using difference_type = std::ptrdiff_t;
-		using value_type = T;
-		using pointer = value_type*;
-		using reference = value_type&;
-
-		Iterator() {}
-		Iterator(pointer ptr) : _ptr(ptr) {}
-
-		reference operator*() const { return *_ptr; }
-		pointer operator->() { return _ptr; }
-		Iterator& operator++() { ++_ptr; return *this; }
-		Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
-		friend bool operator== (const Iterator& a, const Iterator& b) { return a._ptr == b._ptr; };
-		friend bool operator!= (const Iterator& a, const Iterator& b) { return a._ptr != b._ptr; };
-	private:
-		pointer _ptr = nullptr;
-	};
-
-	static_assert(std::forward_iterator<Iterator>);
-
 	ComponentArray(uint64_t size);
-
-	T& operator [](uint64_t i);
-
-	Iterator begin();
-	Iterator end();
-
-	uint64_t activeCount() const;
 
 	void addComponent(uint64_t nodeId);
 	void addComponent(uint64_t nodeId, T component);
@@ -48,10 +19,56 @@ public:
 	uint64_t getNodeId(uint64_t index);
 
 private:
-	std::vector<T> _components;
 	std::unordered_map<uint64_t, uint64_t> _nodeId2cidMap;
 	std::unordered_map<uint64_t, uint64_t> _cid2nodeIdMap;
-	uint64_t _activeCount = 0;
 };
 
-#include "ComponentArray.tpp"
+template <typename T>
+ComponentArray<T>::ComponentArray(uint64_t size) : PackedArray<T>(size) {}
+
+template <typename T>
+void ComponentArray<T>::addComponent(uint64_t nodeId)
+{
+	addComponent(nodeId, T{});
+}
+
+template <typename T>
+void ComponentArray<T>::addComponent(uint64_t nodeId, T component)
+{
+	assert(_nodeId2cidMap.find(nodeId) == _nodeId2cidMap.end());
+
+	auto componentId = this->add(component);
+	_nodeId2cidMap[nodeId] = componentId;
+	_cid2nodeIdMap[componentId] = nodeId;
+}
+
+template <typename T>
+void ComponentArray<T>::removeComponent(uint64_t nodeId)
+{
+	assert(_nodeId2cidMap.find(nodeId) != _nodeId2cidMap.end());
+
+	auto componentId = _nodeId2cidMap[nodeId];
+
+	this->remove(componentId);
+
+	auto exLastNodeId = _cid2nodeIdMap[this->_activeCount];
+	_nodeId2cidMap[exLastNodeId] = componentId;
+	_cid2nodeIdMap[componentId] = exLastNodeId;
+
+	_nodeId2cidMap.erase(nodeId);
+	_cid2nodeIdMap.erase(this->_activeCount);
+}
+
+template <typename T>
+T& ComponentArray<T>::getComponent(uint64_t nodeId)
+{
+	assert(_nodeId2cidMap.find(nodeId) != _nodeId2cidMap.end());
+
+	return this->at(_nodeId2cidMap[nodeId]);
+}
+
+template <typename T>
+uint64_t ComponentArray<T>::getNodeId(uint64_t index)
+{
+	return _cid2nodeIdMap[index];
+}

@@ -24,7 +24,7 @@ struct TriangulatedPrimitiveComponent : public Component
 {
 	sf::Vector2f* trianglePoints = nullptr;
 	sf::Color color = sf::Color::White;
-	uint64_t trianglePointsCount = 0u;
+	uint32_t trianglePointsCount = 0u;
 	uint64_t bufferOffset = 0u;
 };
 

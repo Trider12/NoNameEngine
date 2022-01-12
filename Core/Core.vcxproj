@@ -109,6 +109,7 @@
     <ClInclude Include="src\Component\Component.hpp" />
     <ClInclude Include="src\Component\ComponentArray.hpp" />
     <ClInclude Include="include\Core\CoreLoop.hpp" />
+    <ClInclude Include="src\DataStructures\PackedArray.hpp" />
     <ClInclude Include="src\System\RenderSystem.hpp" />
     <ClInclude Include="src\Core\Locator.hpp" />
     <ClInclude Include="include\Node\Node2D.hpp" />
@@ -117,7 +118,6 @@
     <ClInclude Include="src\Misc\SparseObjectPool.hpp" />
     <ClInclude Include="src\System\System.hpp" />
     <ClInclude Include="src\System\SystemManager.hpp" />
-    <ClInclude Include="src\Component\ComponentArray.tpp" />
     <ClInclude Include="src\System\SystemManager.tpp" />
     <ClInclude Include="include\Node\StaticBody2D.hpp" />
   </ItemGroup>
