@@ -25,6 +25,9 @@ void PhysicsSystem::update(float delta)
 {
 	std::scoped_lock lock(mutex);
 
+	_transformComponents.update();
+	_collisionComponents.update();
+
 	sf::Vector2f translation;
 
 	for (auto i = 0; i < _collisionComponents.activeCount(); ++i)

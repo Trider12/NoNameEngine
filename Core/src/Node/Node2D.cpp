@@ -21,9 +21,13 @@ Node2D::Node2D()
 	systemManager.addComponent<TransformComponent>(*this, component);
 }
 
-Node2D::Node2D(const sf::Vector2f& translation) : Node2D()
+Node2D::Node2D(const sf::Vector2f& translation)
 {
-	translate(translation);
+	nodeManager.registerNode(this);
+	TransformComponent component;
+	component.globalTransform.translate(translation);
+	component.node2D = this;
+	systemManager.addComponent<TransformComponent>(*this, component);
 }
 
 Node2D::~Node2D()
@@ -87,19 +91,23 @@ void Node2D::update(float delta)
 {
 }
 
-void Node2D::transformDeferred(const sf::Transform& transform) // TODO: needs optimizing
+void Node2D::transformDeferred(const sf::Transform& transform)
 {
-	systemManager.getComponent<TransformComponent>(_id).deferredTransform *= transform;
+	std::queue<Node2D*> nodes;
+	nodes.push(this);
 
-	for (auto& child : _children)
+	while (!nodes.empty())
 	{
-		child->transformDeferred(transform);
-	}
-}
+		auto node = nodes.front();
+		nodes.pop();
 
-void Node2D::translate(const sf::Vector2f& translation)
-{
-	systemManager.getComponent<TransformComponent>(_id).globalTransform.translate(translation);
+		systemManager.getSystem<PhysicsSystem>().transformDeferred(*node, transform);
+
+		for (auto& child : node->getChildren())
+		{
+			nodes.push(child.get());
+		}
+	}
 }
 
 void Node2D::translateDeferred(const sf::Vector2f& translation)

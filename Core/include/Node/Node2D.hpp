@@ -44,8 +44,6 @@ protected:
 	Node2D* getParent() const { return _parent; }
 
 private:
-	void translate(const sf::Vector2f& translation);
-
 	std::vector<std::shared_ptr<Node2D>> _children;
 	Node2D* _parent = nullptr;
 	uint64_t _id = 0;

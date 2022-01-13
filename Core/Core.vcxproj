@@ -118,7 +118,6 @@
     <ClInclude Include="src\Misc\SparseObjectPool.hpp" />
     <ClInclude Include="src\System\System.hpp" />
     <ClInclude Include="src\System\SystemManager.hpp" />
-    <ClInclude Include="src\System\SystemManager.tpp" />
     <ClInclude Include="include\Node\StaticBody2D.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

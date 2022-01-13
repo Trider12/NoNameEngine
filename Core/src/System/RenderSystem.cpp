@@ -7,9 +7,6 @@
 namespace
 {
 	const uint8_t initialNumberOfComponents = 64;
-
-	const float vertexBufferCapacityLowerThreshold = 0.6f;
-	const float vertexBufferCapacityUpperThreshold = 0.8f;
 }
 
 RenderSystem::RenderSystem(SystemManager& manager)
@@ -20,27 +17,26 @@ RenderSystem::RenderSystem(SystemManager& manager)
 
 void RenderSystem::update(float delta)
 {
-	if (_resetVertexBuffer)
-	{
-		resetBuffer();
-
-		_transformsDirty = false;
-	}
-
 	std::scoped_lock lock(mutex);
 
 	if (_transformsDirty)
 	{
-		std::scoped_lock lock(_systemManager.getSystem<PhysicsSystem>().mutex);
-
-		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
+		if (_triangulatedPrimitiveComponents.update())
 		{
-			auto& transform = _systemManager.getComponent<TransformComponent>(_triangulatedPrimitiveComponents.getNodeId(i)).globalTransform;
-
-			updatePrimitiveVertexBufferData(_triangulatedPrimitiveComponents[i], transform);
+			resetBuffer();
 		}
+		else
+		{
+			std::scoped_lock lock(_systemManager.getSystem<PhysicsSystem>().mutex);
 
-		_transformsDirty = false;
+			for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
+			{
+				auto transform = _systemManager.getComponent<TransformComponent>(_triangulatedPrimitiveComponents.getNodeId(i)).globalTransform;
+				updatePrimitiveVertexBufferData(_triangulatedPrimitiveComponents[i], transform);
+			}
+
+			_transformsDirty = false;
+		}
 	}
 
 	_renderTarget->draw(*_triangleVertexBuffer, 0, _activeTrianglesVerticesCount);
@@ -56,6 +52,8 @@ void RenderSystem::update(float delta)
 void RenderSystem::init(sf::RenderTarget& target)
 {
 	_renderTarget = &target;
+
+	_triangleVertexBuffer = new sf::VertexBuffer(sf::PrimitiveType::Triangles);
 
 	resetBuffer();
 }
@@ -96,60 +94,26 @@ void RenderSystem::resetBuffer()
 		}
 	}
 
-	std::scoped_lock lock(mutex);
-
-	if (_triangleVertexBuffer == nullptr)
-	{
-		_triangleVertexBuffer = new sf::VertexBuffer(sf::PrimitiveType::Triangles);
-		_triangleVertexBuffer->create(vertices.size());
-	}
-
-	assert(vertices.size() <= _triangleVertexBuffer->getVertexCount());
+	_triangleVertexBuffer->create(0);
+	_triangleVertexBuffer->create(vertices.size());
 
 	_triangleVertexBuffer->update(vertices.data(), vertices.size(), 0);
 	_activeTrianglesVerticesCount = vertices.size();
+	_tempTrianglesVerticesCount = 0;
 
-	_resetVertexBuffer = false;
-}
-
-void RenderSystem::reallocateVertexBufferIfNeeded()
-{
-	std::scoped_lock lock(mutex);
-
-	auto ratio = _activeTrianglesVerticesCount * 1.f / _triangleVertexBuffer->getVertexCount();
-
-	auto newCapacity =
-		ratio > vertexBufferCapacityUpperThreshold || ratio < vertexBufferCapacityLowerThreshold ?
-		unsigned(_activeTrianglesVerticesCount / vertexBufferCapacityUpperThreshold) : 0;
-
-	if (newCapacity == 0)
-	{
-		return;
-	}
-
-#pragma warning(disable : 26812) // FFS Microsoft
-	auto newBuffer = new sf::VertexBuffer(_triangleVertexBuffer->getPrimitiveType());
-	newBuffer->create(newCapacity);
-	newBuffer->update(*_triangleVertexBuffer);
-
-	_triangleVertexBuffer->create(0);
-	delete _triangleVertexBuffer;
-
-	_triangleVertexBuffer = newBuffer;
+	_transformsDirty = false;
 }
 
 void RenderSystem::updatePrimitiveVertexBufferData(const TriangulatedPrimitiveComponent& primitive, const sf::Transform& transform)
 {
-	std::vector<sf::Vertex> vertices; // glBufferSubData might not yet be finished, so have to use new memory
+	auto vertices = new sf::Vertex[primitive.trianglePointsCount]; // glBufferSubData might not yet be finished, so have to use new memory
 
-	vertices.reserve(primitive.trianglePointsCount);
-
-	for (uint64_t j = 0; j < primitive.trianglePointsCount; ++j)
+	for (auto i = 0u; i < primitive.trianglePointsCount; ++i)
 	{
-		vertices.push_back({ transform.transformPoint(primitive.trianglePoints[j]), primitive.color });
+		vertices[i] = { transform.transformPoint(primitive.trianglePoints[i]), primitive.color };
 	}
 
-	assert(primitive.bufferOffset + vertices.size() <= _triangleVertexBuffer->getVertexCount());
+	_triangleVertexBuffer->update(vertices, primitive.trianglePointsCount, unsigned(primitive.bufferOffset));
 
-	_triangleVertexBuffer->update(vertices.data(), vertices.size(), unsigned(primitive.bufferOffset));
+	delete[] vertices;
 }

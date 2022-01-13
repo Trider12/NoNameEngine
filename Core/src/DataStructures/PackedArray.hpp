@@ -1,6 +1,9 @@
 #pragma once
 
-template <typename T>
+#include <numbers>
+#include <algorithm>
+
+template <typename T, std::unsigned_integral uint>
 class PackedArray
 {
 public:
@@ -27,76 +30,98 @@ public:
 
 	static_assert(std::forward_iterator<Iterator>);
 
-	PackedArray(uint64_t size);
+	PackedArray(uint size);
+	~PackedArray();
 
-	T& operator [](uint64_t i);
+	T& operator [](uint i);
 
 	Iterator begin();
 	Iterator end();
 
-	uint64_t activeCount() const;
+	uint activeCount() const;
 
-	uint64_t add(T element);
-	void remove(uint64_t i);
-	T& at(uint64_t i);
+	uint add(T element);
+	T remove(uint i);
+	T& at(uint i);
 
-protected:
-	std::vector<T> _components;
-	uint64_t _activeCount = 0;
+private:
+	void reallocate();
+
+	T* _elements = nullptr;
+	uint _size = 0;
+	uint _activeCount = 0;
 };
 
-template <typename T>
-PackedArray<T>::PackedArray(uint64_t size)
+template <typename T, std::unsigned_integral uint>
+PackedArray<T, uint>::PackedArray(uint size)
 {
-	_components.resize(size);
+	_elements = new T[_size = size];
 }
 
-template <typename T>
-T& PackedArray<T>::operator[](uint64_t i)
+template <typename T, std::unsigned_integral uint>
+PackedArray<T, uint>::~PackedArray()
 {
-	return _components[i];
+	delete _elements;
 }
 
-template <typename T>
-PackedArray<T>::Iterator PackedArray<T>::begin()
+template <typename T, std::unsigned_integral uint>
+T& PackedArray<T, uint>::operator[](uint i)
 {
-	return Iterator(&_components[0]);
+	return _elements[i];
 }
 
-template <typename T>
-PackedArray<T>::Iterator PackedArray<T>::end()
+template <typename T, std::unsigned_integral uint>
+PackedArray<T, uint>::Iterator PackedArray<T, uint>::begin()
 {
-	return Iterator(&_components[_activeCount]);
+	return Iterator(&_elements[0]);
 }
 
-template <typename T>
-uint64_t PackedArray<T>::activeCount() const
+template <typename T, std::unsigned_integral uint>
+PackedArray<T, uint>::Iterator PackedArray<T, uint>::end()
+{
+	return Iterator(&_elements[_activeCount]);
+}
+
+template <typename T, std::unsigned_integral uint>
+uint PackedArray<T, uint>::activeCount() const
 {
 	return _activeCount;
 }
 
-template <typename T>
-uint64_t PackedArray<T>::add(T element)
+template <typename T, std::unsigned_integral uint>
+uint PackedArray<T, uint>::add(T element)
 {
 	auto index = _activeCount++;
-	_components[index] = element;
+	_elements[index] = element;
 
-	if (_activeCount == _components.size())
+	if (_activeCount == _size)
 	{
-		_components.resize(size_t(_components.size() * 1.5f));
+		reallocate();
 	}
 
 	return index;
 }
 
-template <typename T>
-void PackedArray<T>::remove(uint64_t i)
+template <typename T, std::unsigned_integral uint>
+T PackedArray<T, uint>::remove(uint i)
 {
-	_components[i] = _components[_activeCount--];
+	auto element = _elements[i];
+	_elements[i] = _elements[--_activeCount];
+
+	return element;
 }
 
-template <typename T>
-T& PackedArray<T>::at(uint64_t i)
+template <typename T, std::unsigned_integral uint>
+T& PackedArray<T, uint>::at(uint i)
 {
-	return _components.at(i);
+	return _elements[i];
+}
+
+template <typename T, std::unsigned_integral uint>
+void PackedArray<T, uint>::reallocate()
+{
+	auto newPtr = new T[std::max<uint>(_size + 1, uint(_size * std::numbers::phi_v<float>))];
+	std::move(_elements, _elements + _size, newPtr);
+	delete _elements;
+	_elements = newPtr;
 }

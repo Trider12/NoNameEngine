@@ -58,7 +58,6 @@ private:
 	RenderSystem(SystemManager& manager);
 
 	void resetBuffer();
-	void reallocateVertexBufferIfNeeded();
 	void updatePrimitiveVertexBufferData(const TriangulatedPrimitiveComponent& primitive, const sf::Transform& transform);
 
 	sf::RenderTarget* _renderTarget = nullptr;
@@ -67,8 +66,8 @@ private:
 	sf::VertexBuffer* _triangleVertexBuffer = nullptr;
 
 	uint64_t _activeTrianglesVerticesCount = 0;
-	bool _resetVertexBuffer = false;
-	bool _transformsDirty = true;
+	uint64_t _tempTrianglesVerticesCount = 0;
+	bool _transformsDirty = false;
 
 	friend class SystemManager;
 };
@@ -78,13 +77,8 @@ void RenderSystem::addComponent(const Node2D& node, T component)
 {
 	if constexpr (std::is_same_v<T, TriangulatedPrimitiveComponent>)
 	{
-		if (_renderTarget != nullptr)
-		{
-			component.bufferOffset = _activeTrianglesVerticesCount;
-			_activeTrianglesVerticesCount += component.trianglePointsCount;
-
-			reallocateVertexBufferIfNeeded();
-		}
+		component.bufferOffset = _activeTrianglesVerticesCount + _tempTrianglesVerticesCount;
+		_tempTrianglesVerticesCount += component.trianglePointsCount;
 
 		_triangulatedPrimitiveComponents.addComponent(node.getId(), component);
 	}
@@ -99,13 +93,7 @@ void RenderSystem::removeComponent(const Node2D& node)
 {
 	if constexpr (std::is_same_v<T, TriangulatedPrimitiveComponent>)
 	{
-		auto& component = _triangulatedPrimitiveComponents.getComponent(node.getId()); // TODO: improve this
-		delete[] component.trianglePoints;
-		component.trianglePoints = nullptr;
-
-		_triangulatedPrimitiveComponents.removeComponent(node.getId());
-
-		_resetVertexBuffer = true;
+		_triangulatedPrimitiveComponents.removeComponent(node.getId()); // TODO: memory leak
 	}
 	else
 	{
