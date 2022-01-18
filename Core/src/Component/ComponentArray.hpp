@@ -37,7 +37,7 @@ void ComponentArray<T>::addComponent(uint64_t nodeId, T component)
 {
 	assert(_nodeId2cidMap.find(nodeId) == _nodeId2cidMap.end());
 
-	auto componentId = this->add(component);
+	auto componentId = this->insert(component);
 	_nodeId2cidMap[nodeId] = componentId;
 	_cid2nodeIdMap[componentId] = nodeId;
 }
@@ -49,14 +49,14 @@ void ComponentArray<T>::removeComponent(uint64_t nodeId)
 
 	auto componentId = _nodeId2cidMap[nodeId];
 
-	this->remove(componentId);
+	this->erase(componentId);
 
-	auto exLastNodeId = _cid2nodeIdMap[this->_activeCount];
+	auto exLastNodeId = _cid2nodeIdMap[this->size()];
 	_nodeId2cidMap[exLastNodeId] = componentId;
 	_cid2nodeIdMap[componentId] = exLastNodeId;
 
 	_nodeId2cidMap.erase(nodeId);
-	_cid2nodeIdMap.erase(this->_activeCount);
+	_cid2nodeIdMap.erase(this->size());
 }
 
 template <typename T>

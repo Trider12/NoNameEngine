@@ -65,11 +65,6 @@ struct CollisionComponent : public Component
 	{
 		switch (collisionShapeType)
 		{
-			case PhysicsBody2D::CollisionShapeType::AABB:
-			{
-				collisionShape.rect = sf::FloatRect(0.f, 0.f, 100.f, 100.f);
-				break;
-			}
 			case PhysicsBody2D::CollisionShapeType::Circle:
 			{
 				collisionShape.center = {};
@@ -81,6 +76,17 @@ struct CollisionComponent : public Component
 				collisionShape.rect = sf::FloatRect(0.f, 0.f, 100.f, 100.f);
 				break;
 			}
+		}
+	}
+
+	sf::FloatRect getAABB() const
+	{
+		switch (collisionShapeType)
+		{
+			case PhysicsBody2D::CollisionShapeType::Circle:
+				return { collisionShape.center.x - collisionShape.radius, collisionShape.center.y - collisionShape.radius, collisionShape.radius, collisionShape.radius };
+			default:
+				return collisionShape.rect;
 		}
 	}
 

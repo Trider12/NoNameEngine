@@ -33,7 +33,7 @@ void RenderSystem::update(float delta)
 	{
 		std::scoped_lock lock(_systemManager.getSystem<PhysicsSystem>().mutex);
 
-		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
+		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.size(); ++i)
 		{
 			auto& transform = _systemManager.getComponent<TransformComponent>(_triangulatedPrimitiveComponents.getNodeId(i)).globalTransform;
 
@@ -81,7 +81,7 @@ void RenderSystem::resetBuffer()
 	{
 		std::scoped_lock lock(_systemManager.getSystem<PhysicsSystem>().mutex);
 
-		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.activeCount(); ++i)
+		for (uint64_t i = 0; i < _triangulatedPrimitiveComponents.size(); ++i)
 		{
 			auto& primitive = _triangulatedPrimitiveComponents[i];
 

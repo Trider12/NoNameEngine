@@ -3,6 +3,7 @@
 #include "System/System.hpp"
 #include "Component/Component.hpp"
 #include "Component/ComponentArray.hpp"
+#include "DataStructures/QuadTree.hpp"
 
 class PhysicsSystem : public System
 {
@@ -69,6 +70,8 @@ private:
 
 	ComponentArray<TransformComponent> _transformComponents;
 	ComponentArray<CollisionComponent> _collisionComponents;
+
+	QuadTree<float> _quadTree;
 
 	friend class SystemManager;
 };

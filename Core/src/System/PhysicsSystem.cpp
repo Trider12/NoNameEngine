@@ -19,62 +19,73 @@ PhysicsSystem::PhysicsSystem(SystemManager& manager)
 	, _transformComponents{ ComponentArray<TransformComponent>(initialNumberOfComponents) }
 	, _collisionComponents{ ComponentArray<CollisionComponent>(initialNumberOfComponents) }
 {
+	_quadTree.init(0, 0, 10000, 10000, 10);
 }
 
 void PhysicsSystem::update(float delta)
 {
-	std::scoped_lock lock(mutex);
-
-	sf::Vector2f translation;
-
-	for (auto i = 0; i < _collisionComponents.activeCount(); ++i)
+	const auto onPossibleCollision = [this](auto i, auto j)
 	{
+		static sf::Vector2f translation;
+		translation = {};
+
 		auto& c1 = _collisionComponents[i];
 		auto& t1 = _transformComponents[_collisionComponents.getNodeId(i)];
 
-		for (auto j = i + 1; j < _collisionComponents.activeCount(); ++j)
+		auto& c2 = _collisionComponents[j];
+		auto& t2 = _transformComponents[_collisionComponents.getNodeId(j)];
+
+		if (preventCollision(c1, c2, t1, t2, translation))
 		{
-			auto& c2 = _collisionComponents[j];
-			auto& t2 = _transformComponents[_collisionComponents.getNodeId(j)];
-
-			translation.x = 0.f;
-			translation.y = 0.f;
-
-			if (preventCollision(c1, c2, t1, t2, translation))
+			if (c1.collisionType == CollisionComponent::CollisionType::Kinematic)
 			{
-				if (c1.collisionType == CollisionComponent::CollisionType::Kinematic)
-				{
-					assert(t1.node2D != nullptr);
+				assert(t1.node2D != nullptr);
 
-					t1.node2D->translateDeferred(translation);
-				}
-				else
-				{
-					assert(t2.node2D != nullptr);
+				t1.node2D->translateDeferred(translation);
+			}
+			else
+			{
+				assert(t2.node2D != nullptr);
 
-					t2.node2D->translateDeferred(-translation);
-				}
+				t2.node2D->translateDeferred(-translation);
+			}
 
-				VectorHelper::normalize(translation);
+			VectorHelper::normalize(translation);
 
-				if (c1.physicsBody != nullptr)
-				{
-					c1.physicsBody->onCollision(translation);
-				}
+			if (c1.physicsBody != nullptr)
+			{
+				c1.physicsBody->onCollision(translation);
+			}
 
-				if (c2.physicsBody != nullptr)
-				{
-					c2.physicsBody->onCollision(translation);
-				}
+			if (c2.physicsBody != nullptr)
+			{
+				c2.physicsBody->onCollision(translation);
 			}
 		}
+	};
+
+	std::scoped_lock lock(mutex);
+
+	// TODO: this is not efficient. Rewrite this
+
+	for (auto i = 0; i < _collisionComponents.size(); i++)
+	{
+		const auto& collisionComponent = _collisionComponents[i];
+		const auto& transformComponent = _transformComponents[_collisionComponents.getNodeId(i)];
+		auto rect = (transformComponent.globalTransform * transformComponent.deferredTransform).transformRect(collisionComponent.getAABB());
+
+		_quadTree.insert(i, rect.left, rect.top, rect.width, rect.height);
 	}
+
+	_quadTree.forEachUniqueElementPairInEachLeaf(onPossibleCollision);
 
 	for (auto& transformComponent : _transformComponents)
 	{
 		transformComponent.globalTransform *= transformComponent.deferredTransform;
 		transformComponent.deferredTransform = sf::Transform::Identity;
 	}
+
+	_quadTree.clear();
 
 	_systemManager.getSystem<RenderSystem>().setTransformsDirty();
 }

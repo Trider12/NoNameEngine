@@ -109,7 +109,9 @@
     <ClInclude Include="src\Component\Component.hpp" />
     <ClInclude Include="src\Component\ComponentArray.hpp" />
     <ClInclude Include="include\Core\CoreLoop.hpp" />
+    <ClInclude Include="src\DataStructures\FreeList.hpp" />
     <ClInclude Include="src\DataStructures\PackedArray.hpp" />
+    <ClInclude Include="src\DataStructures\QuadTree.hpp" />
     <ClInclude Include="src\System\RenderSystem.hpp" />
     <ClInclude Include="src\Core\Locator.hpp" />
     <ClInclude Include="include\Node\Node2D.hpp" />

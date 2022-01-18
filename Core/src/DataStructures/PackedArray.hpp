@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <vector>
+
 template <typename T>
 class PackedArray
 {
@@ -34,13 +37,12 @@ public:
 	Iterator begin();
 	Iterator end();
 
-	uint64_t activeCount() const;
-
-	uint64_t add(T element);
-	void remove(uint64_t i);
+	uint64_t size() const;
+	uint64_t insert(T element);
+	void erase(uint64_t i);
 	T& at(uint64_t i);
 
-protected:
+private:
 	std::vector<T> _components;
 	uint64_t _activeCount = 0;
 };
@@ -70,13 +72,13 @@ PackedArray<T>::Iterator PackedArray<T>::end()
 }
 
 template <typename T>
-uint64_t PackedArray<T>::activeCount() const
+uint64_t PackedArray<T>::size() const
 {
 	return _activeCount;
 }
 
 template <typename T>
-uint64_t PackedArray<T>::add(T element)
+uint64_t PackedArray<T>::insert(T element)
 {
 	auto index = _activeCount++;
 	_components[index] = element;
@@ -90,7 +92,7 @@ uint64_t PackedArray<T>::add(T element)
 }
 
 template <typename T>
-void PackedArray<T>::remove(uint64_t i)
+void PackedArray<T>::erase(uint64_t i)
 {
 	_components[i] = _components[_activeCount--];
 }
